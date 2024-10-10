@@ -73,11 +73,11 @@ const IdleModal = (props: any) => {
 
                     <DialogContentTexts id="alert-dialog-slide-description">
                         { isSlug === "true" ? <DialogContentTextInner>
-                            You have been inactive for {idleTimeEnv} Minutes. For your security, you have been automatically logged out.
+                            You have been inactive for {idleTimeEnv} Minutes. For security reasons, you have been automatically logged out.
                         </DialogContentTextInner>
                         :
                         <DialogContentTextInner>
-                            You have been inactive for {idleTimeEnv} hour. For your security, you will be automatically logged out.
+                            You have been inactive for {idleTimeEnv} Minutes. For security reasons, you will be automatically logged out.
                         </DialogContentTextInner>}
                     </DialogContentTexts>
                 </DialogContent>
