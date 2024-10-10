@@ -1,10 +1,10 @@
 import * as moment from 'moment';
 import 'moment-timezone';
-
+// import { useSearchParams, useRouter } from 'next/navigation';
 import { sessionKeys } from "./auth";
 
 export const emailRegex = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/;
-
+// const searchParam = useSearchParams();
 export const cookieName = { jwtToken: 'jwt-token' };
 
 export const setCookie = (cname: any, cvalue: any, exdays: any) => {
@@ -200,3 +200,12 @@ export const parseDate = (dd: any) => {
   const year = new Date().getFullYear();
   return new Date(`${month}/${day}/${year}`);
 }
+
+export const isSlug = () => {
+  const searchParams = new URLSearchParams(window.location.search);
+  console.log(searchParams.toString(), "searchParams as string");
+  console.log(searchParams.has("slug"), "has slug?");
+  
+  return searchParams.has("slug");
+};
+

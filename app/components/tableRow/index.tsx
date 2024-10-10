@@ -78,8 +78,8 @@ const Row = (props: any) => {
 
     useEffect(()=>{
        if(expand === true){
-        for(let i=1; i<10; i++){
-            dispatch(getAppointmentDetailMulti({ appointment_id: appointmentsList[i].uuid }))
+        for(let i=0; i<appointmentsList.length; i++){
+            dispatch(getAppointmentDetailMulti({ appointment_id: appointmentsList[i]?.uuid }))
         }
        }
     }, [expand, appointmentDetailMulti])

@@ -13,8 +13,8 @@ const DatePicker = (props: any) => {
     const [maxDate, setMaxDate] = useState(new Date());
     const anchorRef = useRef<any>(null);
 
-    const huddleBoardConfig:any = localStorage.getItem('huddleBoardConfig');
-    const config: any = huddleBoardConfig !== undefined ? JSON.parse(huddleBoardConfig) : "";
+    const huddleBoardConfig = localStorage.getItem('huddleBoardConfig');
+    const config = huddleBoardConfig ? JSON.parse(huddleBoardConfig) : null;
 
     const minDateFromConfig = config?.past_calendar_days_count;
     const maxDateFromConfig = config?.future_calender_days_count;
@@ -55,7 +55,7 @@ const DatePicker = (props: any) => {
 
     useEffect(() => {
         const currentDate = new Date();
-        const minDate = new Date(currentDate.getTime() - 71 * 24 * 60 * 60 * 1000);
+        const minDate = new Date(currentDate.getTime() - minDateFromConfig * 24 * 60 * 60 * 1000);
         const maxDate = new Date(currentDate.getTime() + maxDateFromConfig * 24 * 60 * 60 * 1000);
 
         setMinDate(minDate);

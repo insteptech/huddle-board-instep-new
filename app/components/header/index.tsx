@@ -38,7 +38,7 @@ const Header = () => {
             {config?.user_full_name}
           </StaticTypo>
 
-          {config?.hide_logout_option !== true &&
+          {config?.hide_logout_button !== true &&
             <LinkText
               onClick={() => logout()}
               sx={{ cursor: "pointer", textDecoration: 'none', borderLeft: '2px solid #C8CED2', paddingLeft: '10px' }}

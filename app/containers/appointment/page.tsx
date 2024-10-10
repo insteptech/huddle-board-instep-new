@@ -21,6 +21,8 @@ import arrowRight from "../../images/rightarrow.svg"
 import { ExpendSection, HideShow, LoaderBox } from '../../styles/customStyle';
 import pdfIcon from "../../images/pdficon.svg";
 import moment from 'moment-timezone';
+import { useSearchParams, useRouter } from 'next/navigation';
+
 import {
   HeadingTag,
   TableMainContainer,
@@ -38,11 +40,12 @@ import {
   SearchClearIcon,
   TableMidData
 } from '../../styles/customStyle';
+
 import { AppointmentState, FiltersDataState, emptyAppointmentList, emptySelectedFilter, updateFilter } from '@/app/redux/slices/appointment';
 import { Box, Container, Input, InputAdornment, CircularProgress, Typography, FormControlLabel, Checkbox, FormGroup, Button } from '@mui/material';
 import PatientNotFound from '@/app/components/patientNotFound';
 import { API_URL } from '@/app/redux/config/axiosInstance';
-import { formatDates, parseDate, urlParams } from '@/app/utils/helper';
+import { formatDates , parseDate, urlParams } from '@/app/utils/helper';
 import DatePicker from '@/app/components/datePicker';
 import { accessToken, loginAuthentication, notAuthenticated, isTokenExpired } from '@/app/utils/auth';
 import IdleModal from '@/app/components/idleModal';
@@ -66,7 +69,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   const [isFilterApplied, setIsFilterApplied] = useState<boolean>(false);
   const [arrowDisabledRight, setArrowDisabledRight] = useState<boolean>(false);
   const [arrowDisabledLeft, setArrowDisabledLeft] = useState<boolean>(false);
-
+  const searchParam = useSearchParams();
   const [range, setRange] = useState({
     startDate: new Date(),
     endDate: new Date(),
@@ -113,10 +116,13 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     detail: {}
   })
 
+ 
 
+  const [idleTimeEnv, setIdleTimeEnv] = useState(15);
+  const [completedActions, setCompletedActions] = useState(false);
+  const [zeroScreenings, setZeroScreenings] = useState(false);
   const [expand, setExpand] = useState(false);
   const [eventData, setEventData] = useState<EventData[]>([]);
-
   const [newEventData, setNewEventData] = useState<EventData[]>([]);
   const dispatchMemoized = useCallback(dispatch, []); // memoize dispatch
 
@@ -186,6 +192,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Timer Modal
+
   useEffect(() => {
     let timer = null;
     const resetIdleTime = () => {
@@ -214,11 +222,27 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     };
   }, []);
 
+
+  const isSlug = () => {
+    if (searchParam.has("slug")) {
+      console.log(searchParam.has("slug") , "dshdsvfhdshfsd")
+      return true;
+    }
+    else{
+      return false;
+    }
+  }
+
+
+
   useEffect(() => {
-    if (idleTime > 59) {
+  
+    if (idleTime > idleTimeEnv) {
       setIdleModalOpen(true);
     }
   }, [idleTime]);
+
+  // Load More Appointment
 
   const loadMoreAppointment = (filter: FiltersDataState, auditState?: any) => {
     dispatch(getAppointmentsList(filter)).then((response: any) => {
@@ -254,17 +278,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   };
 
 
-  const appointmentTop = (filter: FiltersDataState, auditState?: any) => {
-    dispatch(getAppointmentsList(filter)).then((response: any) => {
-      setMainLoader(false);
-      dispatch(updateFilter({ page: filter && filter.page ? filter.page : page }));
-      if (response?.payload?.results.length === 0) {
-        setIsClearFilter(true);
-      } else {
-        setIsClearFilter(false);
-      }
-    })
-  };
 
 
   // useEffect(() => {
@@ -393,7 +406,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     }
  
     dispatch(updateAppointmentDetail(payload)).then((res) => {
-      console.log(res, "jjhghghghghgh")
       toast.success("Successfully Updated");
       appointmentDetails(appointment_id);
       handleAddEventData("FRONTEND_TILE_CLICK_ACTION", `FRONTEND_TILE_CLICK_ACTION${value}`, `FRONTEND_TILE_CLICK_ACTION${value}`)
@@ -404,6 +416,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         page_size: 200,
         appointment_start_date: formattedDates.start,
         appointment_end_date: formattedDates.end,
+        hide_complete_appointments:completedActions,
+        hide_zero_screenings:zeroScreenings
       };
       dispatch(getAllAppointments(payload));
     }).catch(() => {
@@ -436,7 +450,9 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       ...filters,
       file_type: 'pdf',
       timezone: timezone,
-      page: 1
+      page: 1,
+      hide_complete_appointments:completedActions,
+        hide_zero_screenings:zeroScreenings
 
     };
     const url = `${API_URL}download-appointments/?${urlParams(appliedFilters)}`;
@@ -473,7 +489,9 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       patient_name: '',
       appointment_start_date: formattedDates.start,
       appointment_end_date: formattedDates.end,
-      timezone: timezone
+      timezone: timezone,
+      hide_complete_appointments:completedActions,
+        hide_zero_screenings:zeroScreenings
     };
     setMainLoader(true);
     setSelectedVisitType([]);
@@ -510,7 +528,9 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         page_size: 10,
         appointment_start_date: formattedDates.start,
         appointment_end_date: formattedDates.end,
-        timezone: timezone
+        timezone: timezone,
+        hide_complete_appointments:completedActions,
+        hide_zero_screenings:zeroScreenings
       };
 
       dispatch(updateFilter(filtersData));
@@ -528,6 +548,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         ...filters,
         page: 1,
         page_size: 10,
+        hide_complete_appointments:completedActions,
+        hide_zero_screenings:zeroScreenings,
         patient_name: e.target.value
       };
       setTimeout(() => {
@@ -550,7 +572,9 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         screening: selectedScreening,
         page: 1,
         page_size: 10,
-        patient_name: newVal
+        patient_name: newVal,
+        hide_complete_appointments:completedActions,
+        hide_zero_screenings:zeroScreenings
       };
 
       dispatch(emptyAppointmentList());
@@ -574,7 +598,9 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         screening: payload.screening,
         page: 1,
         page_size: 10,
-        patient_name: ''
+        patient_name: '',
+        hide_complete_appointments:completedActions,
+        hide_zero_screenings:zeroScreenings
       };
 
       setSelectedVisitType(payload.visit_type);
@@ -594,6 +620,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       appointment_end_date: formattedDates.end,
       page: 1,
       page_size: 10,
+      hide_complete_appointments:completedActions,
+        hide_zero_screenings:zeroScreenings
     };
     dispatch(updateFilter(filter));
     dispatch(emptyAppointmentList());
@@ -607,6 +635,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       sort_by: isAppointmentTimeSortAscending ? 'appointment_timestamp' : '-appointment_timestamp',
       page: 1,
       page_size: 10,
+      hide_complete_appointments:completedActions,
+        hide_zero_screenings:zeroScreenings
     };
 
 
@@ -622,6 +652,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       sort_by: isPatientNameSortAscending ? 'patient__patient_first_name' : '-patient__patient_first_name',
       page: 1,
       page_size: 10,
+      hide_complete_appointments:completedActions,
+        hide_zero_screenings:zeroScreenings
     };
     dispatch(updateFilter(filtersData));
     dispatch(emptyAppointmentList());
@@ -650,7 +682,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     const selectedDay = selectedDate.getDate();
 
     const minDateOnly = new Date(currentDate);
-    minDateOnly.setDate(currentDay - 71);
+    minDateOnly.setDate(currentDay - past_calendar_days_count);
 
     const maxDateOnly = new Date(currentDate);
     maxDateOnly.setDate(currentDay + future_calender_days_count);
@@ -666,11 +698,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
 
     dateRangeHandleChange(selectedDate);
   }
-
-
-  const handleRouteChange = () => {
-    window.scrollTo(0, 0);
-  };
 
   // Create a ref for the first element
   const firstElementRef = useRef<any>(null);
@@ -688,6 +715,31 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   useEffect(() => {
     console.log('firstElementRef:', firstElementRef.current);
   }, [appointmentsList]);
+
+
+  // ****************************************** Show and hide appointments
+
+  const handleCompletedActionsChange = (event:any) => {
+    setCompletedActions(event.target.checked);
+  };
+
+  const handleZeroScreeningsChange = (event:any) => {
+    setZeroScreenings(event.target.checked);
+  };
+
+  useEffect(()=>{
+
+    const filtersData = {
+      ...filters,
+      sort_by: isPatientNameSortAscending ? 'patient__patient_first_name' : '-patient__patient_first_name',
+      page: 1,
+      page_size: 10,
+      hide_complete_appointments:completedActions,
+        hide_zero_screenings:zeroScreenings
+    };
+    
+  loadMoreAppointment(filtersData)
+  }, [zeroScreenings, completedActions])
 
   return (
     <>
@@ -806,24 +858,40 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
                 />
               </TableTop>
             </Box>
-            <HideShow >
-              <Typography component='p'>Hide:</Typography>
-              <Box sx={{ display: 'flex', paddingInline: '8px' }}>
-                <FormControlLabel control={<Checkbox
-                  icon={<UncheckedIcon />}
-                  checkedIcon={<CheckedIcon />}
-                />} label="Completed Actions" />
-                <FormControlLabel control={<Checkbox
-                  icon={<UncheckedIcon />}
-                  checkedIcon={<CheckedIcon />}
-                />} label="Zero Screenings" />
-              </Box>
-            </HideShow>
+
+            <HideShow>
+      <Typography component='p'>Hide:</Typography>
+      <Box sx={{ display: 'flex', paddingInline: '8px' }}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              icon={<UncheckedIcon />}
+              checkedIcon={<CheckedIcon />}
+              checked={completedActions}
+              onChange={handleCompletedActionsChange}
+            />
+          }
+          label="Completed Actions"
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              icon={<UncheckedIcon />}
+              checkedIcon={<CheckedIcon />}
+              checked={zeroScreenings}
+              onChange={handleZeroScreeningsChange}
+            />
+          }
+          label="Zero Screenings"
+        />
+      </Box>
+    </HideShow>
+
             <ExpendSection>
-              <Typography component={'p'}>Expand:</Typography>
+              {/* <Typography component={'p'}>Expand:</Typography>
               <Button onClick={() => expandedValues(true)}>All</Button>
               <Typography component={'span'} sx={{ color: '#172B4D' }}>|</Typography>
-              <Button onClick={() => expandedValues(false)}>None</Button>
+              <Button onClick={() => expandedValues(false)}>None</Button> */}
             </ExpendSection>
           </TableTopMain>
 
@@ -950,7 +1018,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         </TableDiv>
       </Container>
 
-      <IdleModal idleTime={idleTime} setIdleTime={setIdleTime} idleModalOpen={idleModalOpen} setIdleModalOpen={setIdleModalOpen} />
+      <IdleModal isSlug={isSlug} idleTime={idleTime} idleTimeEnv={idleTimeEnv} setIdleTime={setIdleTime} idleModalOpen={idleModalOpen} setIdleModalOpen={setIdleModalOpen} />
     </>
   );
 

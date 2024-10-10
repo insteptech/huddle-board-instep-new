@@ -42,6 +42,7 @@ const SignUp = () => {
           .then(() => {
             dispatch(getHuddleBoardConfig()).then((res: any) => {
               localStorage.setItem('huddleBoardConfig', JSON.stringify(res.payload));
+              localStorage.setItem("isSlug" , "true")
               router.push("/appointment");
               window.location.href = "/appointment"
             });

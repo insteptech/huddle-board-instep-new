@@ -43,7 +43,9 @@ export type FiltersDataState = {
   screening?: string[],
   patient_name?: string,
   sort_by?: string,
-  timezone?: String
+  timezone?: String,
+  hide_complete_appointments?:boolean,
+  hide_zero_screenings?:boolean
 }
 
 export type AppointmentFiltersDataState = {
@@ -96,7 +98,9 @@ const initialState: AppointmentsState = {
     sort_by: 'appointment_timestamp',
     appointment_start_date: formattedDates.start,
     appointment_end_date: formattedDates.end,
-    timezone: timezone
+    timezone: timezone,
+    hide_complete_appointments:false,
+    hide_zero_screenings: true
   },
   selectedFilterList: [],
   selectedFilterDetail: null,

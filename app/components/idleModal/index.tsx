@@ -18,6 +18,7 @@ import {
 } from "@/app/styles/customStyle";
 import { getAndSetAccessToken, refreshTokens } from "@/app/utils/auth";
 
+
 const DeleteTransition = React.forwardRef(function Transition(
     props: TransitionProps & {
         children: React.ReactElement<any, any>;
@@ -29,9 +30,17 @@ const DeleteTransition = React.forwardRef(function Transition(
 
 const IdleModal = (props: any) => {
 
-    const { idleModalOpen, setIdleModalOpen, setIdleTime, idleTime } = props;
+    
+    const isSlug = localStorage.getItem("isSlug");
+
+    const { idleModalOpen, setIdleModalOpen, setIdleTime, idleTimeEnv , idleTime } = props;
 
     const logoutUser = () => {
+
+        if(isSlug === "true"){
+            return;
+        }
+        
         setIdleModalOpen(false);
         localStorage.clear();
         window.location.href = '/auth/login';
@@ -43,8 +52,6 @@ const IdleModal = (props: any) => {
         setIdleTime(0)
         refreshTokens();
     }
-
-    const newIdleTime = 1;
 
     return (
         <React.Fragment>
@@ -65,19 +72,28 @@ const IdleModal = (props: any) => {
                     <DialogTitleInner sx={{ marginBottom: "20px" }}>{" Timeout Warning"}</DialogTitleInner>
 
                     <DialogContentTexts id="alert-dialog-slide-description">
-                        <DialogContentTextInner>
-                            You have been inactive for {newIdleTime} hour. For your security, you will be automatically logged out.
+                        { isSlug === "true" ? <DialogContentTextInner>
+                            You have been inactive for {idleTimeEnv} Minutes. For your security, you have been automatically logged out.
                         </DialogContentTextInner>
+                        :
+                        <DialogContentTextInner>
+                            You have been inactive for {idleTimeEnv} hour. For your security, you will be automatically logged out.
+                        </DialogContentTextInner>}
                     </DialogContentTexts>
                 </DialogContent>
 
-                <Container>
+                {isSlug === "true" ? <Container>
+                    <DialogActionsMain>
+                        
+
+                    </DialogActionsMain>
+                </Container> :<Container>
                     <DialogActionsMain>
                         <ButtonLogggedIn onClick={() => stayLoggedIn()}>Stay Logged In</ButtonLogggedIn>
                         <ButtonLogout onClick={() => logoutUser()}>Logout</ButtonLogout>
 
                     </DialogActionsMain>
-                </Container>
+                </Container>}
             </Dialog>
         </React.Fragment>
     );
