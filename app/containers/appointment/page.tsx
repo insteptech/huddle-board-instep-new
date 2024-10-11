@@ -368,6 +368,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   const [newbuttonState, setNewButtonState] = useState(true)
 
   const updateButtonState = (value: any, data: any, detail: any) => {
+    
     setNewButtonState(!newbuttonState)
     if (data == "disable") {
       toast.error("cannot select")
@@ -395,9 +396,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     setReverseModal(false);
     setConfirmationModal(false)
 
-    console.log(detail)
-
-
     const { appointment_id, uuid } = detail;
     const payload = {
       appointment_id: appointment_id,
@@ -406,7 +404,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     }
  
     dispatch(updateAppointmentDetail(payload)).then((res) => {
-      toast.success("Successfully Updated");
+      // toast.success("Successfully Updated");
       appointmentDetails(appointment_id);
       handleAddEventData("FRONTEND_TILE_CLICK_ACTION", `FRONTEND_TILE_CLICK_ACTION${value}`, `FRONTEND_TILE_CLICK_ACTION${value}`)
       dispatch(getAppointmentDetailMulti({ appointment_id: res?.meta?.arg?.appointment_id }))
@@ -421,7 +419,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       };
       dispatch(getAllAppointments(payload));
     }).catch(() => {
-      toast.error("Update failed");
+      // toast.error("Update failed");
       handleAddEventData("FRONTEND_TILE_CLICK_ACTION", `FRONTEND_TILE_CLICK_ACTION${value}`, `FRONTEND_TILE_CLICK_ACTION${value}`)
     })
   }

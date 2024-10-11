@@ -40,11 +40,11 @@ const ActionReverse = (props: any) => {
 
     useEffect(() => {
         if (actionValue.value == "clinician_agrees") {
-            setDisplayValue("Clinician Agrees")
+            setDisplayValue("Accept")
         }
 
         else if (actionValue.value == "clinician_disagrees") {
-            setDisplayValue("Clinician Disagrees")
+            setDisplayValue("Reject")
         }
 
         else if (actionValue.value == "test_ordered") {
