@@ -238,8 +238,7 @@ const Row = (props: any) => {
                                                                         <BootstrapTooltip placement='top'
                                                                             title= {(getOutComeBtnState(detail, 'clinician_agrees') === "active") ?  "You can reverse you action by clicking on same button again." : ""}
                                                                             arrow
-                                                                             // Tooltip background color
-                                                                           className='toolti-wwwwwww'
+                                                                         
                                                                         >
                                                                             <StyledMuiButton
                                                                                 buttonstate={getOutComeBtnState(detail, 'clinician_agrees')}
@@ -252,7 +251,6 @@ const Row = (props: any) => {
 
                                                                         <BootstrapTooltip placement='top'
                                                                             title= {(getOutComeBtnState(detail, 'clinician_disagrees') === "active") ? "You can reverse you action by clicking on same button again." : "" }
-
                                                                             arrow
                                                                              // Tooltip background color
                                                                         >
