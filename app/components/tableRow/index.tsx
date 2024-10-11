@@ -71,9 +71,6 @@ const Row = (props: any) => {
     const dispatch = useDispatch<AppDispatch>();
     const appointmentDetailMulti = useSelector((state: AppState) => state.appointment?.appointmentDetailMulti) || [];
 
-
-    console.log(appointmentDetailMulti, "appointmentDetailMulti");
-
     // useEffect(() => {
     //     if (expand === true) {
     //         setOpen(false)

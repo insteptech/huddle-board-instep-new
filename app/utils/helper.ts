@@ -203,9 +203,6 @@ export const parseDate = (dd: any) => {
 
 export const isSlug = () => {
   const searchParams = new URLSearchParams(window.location.search);
-  console.log(searchParams.toString(), "searchParams as string");
-  console.log(searchParams.has("slug"), "has slug?");
-  
   return searchParams.has("slug");
 };
 

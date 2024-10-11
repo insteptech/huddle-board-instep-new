@@ -225,7 +225,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
 
   const isSlug = () => {
     if (searchParam.has("slug")) {
-      console.log(searchParam.has("slug") , "dshdsvfhdshfsd")
       return true;
     }
     else{
@@ -237,7 +236,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
 
   useEffect(() => {
   
-    if (idleTime > idleTimeEnv) {
+    if (idleTime >= idleTimeEnv) {
       setIdleModalOpen(true);
     }
   }, [idleTime]);
@@ -711,7 +710,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   }
 
   useEffect(() => {
-    console.log('firstElementRef:', firstElementRef.current);
   }, [appointmentsList]);
 
 
