@@ -385,7 +385,7 @@ function FilterButton(props: any) {
 
                         <TableDataList>
                           <TableCellHd>
-                            Providers ({provider?.length})
+                            Clinician ({provider?.length})
                           </TableCellHd>
                           {provider?.map((pro: any, index: number) => (
                             <TableCellTd key={index}>

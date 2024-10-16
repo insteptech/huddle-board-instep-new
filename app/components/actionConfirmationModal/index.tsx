@@ -37,12 +37,14 @@ const ActionConfirmation = (props: any) => {
         setConfirmationModal(!confirmationModal)
     }
 
+    console.log(actionValue , "actionValue")
+
     useEffect(() => {
-        if (actionValue.value == "clinician_agrees") {
+        if (actionValue.value == "accept") {
             setDisplayValue("Accept")
         }
 
-        else if (actionValue.value == "clinician_disagrees") {
+        else if (actionValue.value == "reject") {
             setDisplayValue("Reject")
         }
 

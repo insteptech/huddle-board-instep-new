@@ -106,6 +106,15 @@ const DatePicker = (props: any) => {
                             '.rdrDayHovered .rdrDayNumber::after': {
                                 display: 'none'
                             }
+,
+'.rdrMonthAndYearPickers': {
+  '& select': { // Use '&' to target the nested select element
+    textAlign: 'left', // Use camelCase for CSS property names in JavaScript
+    '&:hover': {
+      backgroundColor: 'rgb(255 255 255 / 70%)', // Use camelCase for CSS properties
+    },
+  },
+}
                         }}
                     >
                         <Calendar date={date} onChange={handleDateChange} minDate={minDate} maxDate={maxDate} />

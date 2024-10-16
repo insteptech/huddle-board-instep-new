@@ -42,6 +42,8 @@ const Login = () => {
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   const [counter, setCounter] = useState(0);
   const [isInvalidEmail, setIsInvlidEmail] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isInvalidEmailFirst, setIsInvlidEmailFirst] = useState(false)
 
   useEffect(() => {
     // Clear IndexedDB when the component mounts
@@ -66,16 +68,14 @@ const Login = () => {
     localStorage.clear();
 
     if (!email) {
-      toast.error("Enter Email Address", {
-        toastId: 'error1',
-      });
+      setErrorMessage('Enter Email Address');
+      setIsInvlidEmailFirst(true);
       return
     }
 
     if (!emailRegex.test(email)) {
-      toast.error("Enter a valid Email Address", {
-        toastId: 'error2',
-      });
+      setErrorMessage('No Account found with that email address, Try other email address or contact us for support');
+      setIsInvlidEmailFirst(true);
       return;
     }
 
@@ -97,6 +97,7 @@ const Login = () => {
           setOtpSent(true);
         }
         if (response?.payload?.error) {
+          setErrorMessage('No Account found with that email address, Try other email address or contact us for support');
           setIsInvlidEmail(true)
         }
       })
@@ -225,22 +226,27 @@ const Login = () => {
                   <LoginLabel>Please sign-in to your account</LoginLabel>
                   <TextField
                     sx={{
-                      'fieldset ,MuiInputBase-formControl:hover fieldset ': isInvalidEmail ? {
+                      'fieldset ,MuiInputBase-formControl:hover fieldset ': (isInvalidEmail || isInvalidEmailFirst) ? {
                         borderColor: 'red !important'
                       } : null,
-                      'label': isInvalidEmail ? {
+                      'label': (isInvalidEmail || isInvalidEmailFirst) ? {
                         borderColor: 'red',
                         color: 'red'
                       } : null,
-                      '.Mui-focused fieldset': isInvalidEmail ? {
+                      '.Mui-focused fieldset': (isInvalidEmail || isInvalidEmailFirst) ? {
                         borderColor: 'red !important'
                       } : null,
-                      'label.Mui-focused': isInvalidEmail ? {
+                      'label.Mui-focused': (isInvalidEmail || isInvalidEmailFirst) ? {
                         color: 'red'
                       } : null
                     }}
 
                     onChange={(event) => setEmail(event.target.value)} id="outlined-basic" label="Enter your email address" variant="outlined" />
+                     {errorMessage && (
+                <LoginWarning>
+                  {errorMessage}
+                </LoginWarning>
+              )}
                 </LoginContent>
                 <LoginActions>
 

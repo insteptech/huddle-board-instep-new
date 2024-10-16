@@ -37,7 +37,7 @@ const SaveFilterModal = (props: any) => {
   return (
     <React.Fragment>
       <Dialog
-        sx={{ zIndex: "99999" }}
+        sx={{ zIndex: "99999" ,   backdropFilter: "blur(5px)"}}
         PaperProps={{ sx: { borderRadius: "12px", width: "400px" } }}
         open={isModalOpen}
         TransitionComponent={SaveTransition}

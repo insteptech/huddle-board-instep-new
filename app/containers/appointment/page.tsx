@@ -116,6 +116,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     detail: {}
   })
 
+  console.log(actionValue , "dbjcbcbcbbc")
  
 
   const [idleTimeEnv, setIdleTimeEnv] = useState(15);
@@ -339,13 +340,17 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   };
 
   const getAction = (value: string) => {
+
+    console.log("sdnksjbfd", value)
+
+
     switch (value) {
-      case 'clinician_agrees':
-        return { clinician_agrees: true };
-      case 'clinician_disagrees':
-        return { clinician_disagrees: true };
+      case 'accept':
+        return { accept: false };
+      case 'reject':
+        return { reject: false };
       case 'test_ordered':
-        return { test_ordered: true };
+        return { test_ordered: false };
       default:
         return {};
     }
@@ -353,10 +358,10 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
 
   const getAction2 = (value: string) => {
     switch (value) {
-      case 'clinician_agrees':
-        return { clinician_agrees: false, clinician_disagrees: false, test_ordered: false };
-      case 'clinician_disagrees':
-        return { clinician_disagrees: false, clinician_agrees: false, test_ordered: false };
+      case 'accept':
+        return { accept: true, reject: false, test_ordered: true };
+      case 'reject':
+        return { reject: true, accept: false, test_ordered: false };
       case 'test_ordered':
         return { test_ordered: false };
       default:
@@ -367,12 +372,15 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   const [newbuttonState, setNewButtonState] = useState(true)
 
   const updateButtonState = (value: any, data: any, detail: any) => {
+
+    console.log(data ,"vbcxjbjvcvc")
     
     setNewButtonState(!newbuttonState)
     if (data == "disable") {
       toast.error("cannot select")
       return;
     }
+
     if (data == "enable") {
       setConfirmationModal(true)
       setActionValue({
@@ -392,6 +400,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   }
 
   const updateOutCome = (value: any, data: any, detail: any) => {
+
     setReverseModal(false);
     setConfirmationModal(false)
 
@@ -399,11 +408,11 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     const payload = {
       appointment_id: appointment_id,
       screening_id: uuid,
-      action: data == "enable" ? getAction(value) : getAction2(value)
+      action:  data === "enable"? getAction2(value) : getAction(value)
     }
  
     dispatch(updateAppointmentDetail(payload)).then((res) => {
-      // toast.success("Successfully Updated");
+      console.log(res, "dfhdfhdvfdf")
       appointmentDetails(appointment_id);
       handleAddEventData("FRONTEND_TILE_CLICK_ACTION", `FRONTEND_TILE_CLICK_ACTION${value}`, `FRONTEND_TILE_CLICK_ACTION${value}`)
       dispatch(getAppointmentDetailMulti({ appointment_id: res?.meta?.arg?.appointment_id }))
@@ -796,7 +805,10 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
           </RightPrint>
         </MainBoxTop>
 
-        <TableDiv>
+        <TableDiv sx={{  height: {
+      xs: "auto", // For extra-small devices, make the height auto
+      sm: "80vh" // For small and above, cover the full viewport height
+    }}}>
           <TableTopMain>
             <Box sx={{ display: 'flex' }}>
               <FilterMenu>
@@ -865,6 +877,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
               checkedIcon={<CheckedIcon />}
               checked={completedActions}
               onChange={handleCompletedActionsChange}
+              disabled={appointmentsList.length <= 0}
             />
           }
           label="Completed Actions"
@@ -876,6 +889,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
               checkedIcon={<CheckedIcon />}
               checked={zeroScreenings}
               onChange={handleZeroScreeningsChange}
+              disabled={appointmentsList.length <= 0}
             />
           }
           label="Zero Screenings"

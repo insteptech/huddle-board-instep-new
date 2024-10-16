@@ -15,7 +15,7 @@ const PatientNotFound = (props: any) => {
     return (
       <>
         {icon ? (
-          <TableRow>
+          <TableRow sx={{height:"100vh"}}>
             <StyledTableCenter
               sx={{ textAlign: "center", color: "#000" }}
               colSpan={6}
