@@ -236,7 +236,7 @@ const Row = (props: any) => {
                                                                 <TableMidData sx={{ width: '180px' }}>
                                                                     <TableMidIn>
                                                                         <BootstrapTooltip placement='top'
-                                                                            title= {(getOutComeBtnState(detail, 'accept') === "active") ?  "You can reverse you action by clicking on same button again." : ""}
+                                                                            title= {(getOutComeBtnState(detail, 'accept') === "active" ) ?  "You can reverse you action by clicking on same button again." : ""}
                                                                             arrow
                                                                          
                                                                         >
@@ -245,7 +245,7 @@ const Row = (props: any) => {
                                                                                 onClick={() => updateButtonState('accept', getOutComeBtnState(detail, 'accept'), detail)}
                                                                             >
                                                                                 
-                                                                                {getOutComeBtnState(detail, 'accept') === "enable" ? "Accept" : "Accepted" }
+                                                                                {(getOutComeBtnState(detail, 'accept') === "enable" || getOutComeBtnState(detail, 'reject') === "active") ? "Accept" : "Accepted" }
                                                                             </StyledMuiButton>
                                                                         </BootstrapTooltip>
 
@@ -258,7 +258,7 @@ const Row = (props: any) => {
                                                                                 buttonstate={getOutComeBtnState(detail, 'reject')}
                                                                                 onClick={() => updateButtonState('reject', getOutComeBtnState(detail, 'reject'), detail)}
                                                                             >
-                                                                                {getOutComeBtnState(detail, 'reject') === "enable" ? "Reject" : "Rejected" }
+                                                                                {(getOutComeBtnState(detail, 'reject') === "enable" || getOutComeBtnState(detail, 'accept')=== "active") ? "Reject" : "Rejected" }
                                                                             </StyledMuiButton>
                                                                         </BootstrapTooltip>
                                                                         {/* {detail.show_test_ordered ? <StyledMuiButton buttonstate={getOutComeBtnState(detail, 'test_ordered')} onClick={() => updateButtonState('test_ordered', getOutComeBtnState(detail, 'test_ordered'), detail)}>

@@ -116,9 +116,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     detail: {}
   })
 
-  console.log(actionValue , "dbjcbcbcbbc")
- 
-
   const [idleTimeEnv, setIdleTimeEnv] = useState(15);
   const [completedActions, setCompletedActions] = useState(false);
   const [zeroScreenings, setZeroScreenings] = useState(false);
@@ -341,9 +338,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
 
   const getAction = (value: string) => {
 
-    console.log("sdnksjbfd", value)
-
-
     switch (value) {
       case 'accept':
         return { accept: false };
@@ -372,8 +366,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   const [newbuttonState, setNewButtonState] = useState(true)
 
   const updateButtonState = (value: any, data: any, detail: any) => {
-
-    console.log(data ,"vbcxjbjvcvc")
     
     setNewButtonState(!newbuttonState)
     if (data == "disable") {

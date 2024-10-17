@@ -21,7 +21,6 @@ export const getOutComeBtnState = (detail: any, key: any) => {
             buttonState = "active";
         }
 
-      
         if (accept || test_ordered) {
             buttonState = "disable";
         }
@@ -41,6 +40,7 @@ export const getOutComeBtnState = (detail: any, key: any) => {
             buttonState = "active";
         }
     }
+
     return buttonState;
 }
 
