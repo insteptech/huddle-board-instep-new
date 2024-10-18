@@ -74,7 +74,7 @@ const Login = () => {
     }
 
     if (!emailRegex.test(email)) {
-      setErrorMessage('No Account found with that email address, Try other email address or contact us for support');
+      setErrorMessage('No Account found with that email address. Try other email address or contact us for support!');
       setIsInvlidEmailFirst(true);
       return;
     }
@@ -241,7 +241,7 @@ const Login = () => {
                       } : null
                     }}
 
-                    onChange={(event) => setEmail(event.target.value)} id="outlined-basic" label="Enter your email address" variant="outlined" />
+                    onChange={(event) => setEmail(event.target.value)} id="outlined-basic" label="Email Address" variant="outlined" />
                      {errorMessage && (
                 <LoginWarning>
                   {errorMessage}
@@ -250,7 +250,7 @@ const Login = () => {
                 </LoginContent>
                 <LoginActions>
 
-                  <Button variant="contained" onClick={handleEmail} >Next</Button>
+                  <Button variant="contained" onClick={handleEmail} >NEXT</Button>
                 </LoginActions>
 
                 <LoginPolicy>I agree that I have read and accepted the <a href="#">Terms of Use</a> and <a href="#">Privacy Policy.</a></LoginPolicy>

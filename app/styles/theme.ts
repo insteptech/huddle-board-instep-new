@@ -28,7 +28,7 @@ const ProximaNova = localFont({
       weight: '700',
       style: 'normal',
     }
-     
+
   ],
 })
 
@@ -36,10 +36,23 @@ const theme = createTheme({
   typography: {
     fontFamily: ProximaNova.style.fontFamily,
   },
-  
+
 },
-{customArgs:{
-  hearderBgColor: "#fff",
-}});
+
+  {
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          border: 'none'
+        },
+      },
+    }
+  },
+
+  {
+    customArgs: {
+      hearderBgColor: "#fff",
+    }
+  });
 
 export default theme;

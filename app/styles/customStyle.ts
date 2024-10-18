@@ -24,6 +24,10 @@ export const StyledTableCell = styled(TableCell)(({ theme }: any) => ({
 
 export const TdTableCell = styled(TableCell)(({ theme }: any) => ({
   borderBottom: 'none',
+  '.mui-799qhl-MuiTableCell-root': {
+    border:"none !important"
+  },
+  
 }));
 
 export const Typography_Grid = styled('div')(({ div }: any) => ({
@@ -76,6 +80,7 @@ export const StyledTableRow = styled(TableRow)({
     boxShadow: '0px 4px 4px 0px #00000040',
     cursor: 'pointer'
   },
+  border: 'none'
 })
 
 export const StaticTypo = styled(Typography)(({ div }: any) => ({
@@ -351,6 +356,11 @@ export const BoxFilterRightMid = styled(Button)(({ div }: any) => ({
   "&:hover": {
     background: '#fff',
   },
+}));
+
+export const EmptyRow = styled(TableRow)(({ theme }) => ({
+  height: '20px', // Adjust the height as needed
+  backgroundColor: '#F3F7FC',
 }));
 
 export const TableCellHd = styled('div')(({ div }: any) => ({
@@ -1069,6 +1079,7 @@ export const TableMidIn = styled('div')(({ div }: any) => ({
   display: 'flex',
   alignItems: 'Center',
   justifyContent: 'space-evenly',
+  overflow:'auto'
 }));
 
 
@@ -1284,7 +1295,7 @@ export const LoginLabel = styled(Typography)(({ div }: any) => ({
   fontWeight: '400',
   lineHeight: '21px ',
   color: '#5C6469',
-  marginBottom: '25px',
+  marginBottom: '15px',
 
 
 }));

@@ -42,10 +42,10 @@ import {
 } from '../../styles/customStyle';
 
 import { AppointmentState, FiltersDataState, emptyAppointmentList, emptySelectedFilter, updateFilter } from '@/app/redux/slices/appointment';
-import { Box, Container, Input, InputAdornment, CircularProgress, Typography, FormControlLabel, Checkbox, FormGroup, Button } from '@mui/material';
+import { Box, Container, Input, InputAdornment, CircularProgress, Typography, FormControlLabel, Checkbox, FormGroup, Button, TableCell } from '@mui/material';
 import PatientNotFound from '@/app/components/patientNotFound';
 import { API_URL } from '@/app/redux/config/axiosInstance';
-import { formatDates , parseDate, urlParams } from '@/app/utils/helper';
+import { formatDates, parseDate, urlParams } from '@/app/utils/helper';
 import DatePicker from '@/app/components/datePicker';
 import { accessToken, loginAuthentication, notAuthenticated, isTokenExpired } from '@/app/utils/auth';
 import IdleModal from '@/app/components/idleModal';
@@ -225,7 +225,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     if (searchParam.has("slug")) {
       return true;
     }
-    else{
+    else {
       return false;
     }
   }
@@ -233,7 +233,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
 
 
   useEffect(() => {
-  
+
     if (idleTime >= idleTimeEnv) {
       setIdleModalOpen(true);
     }
@@ -366,7 +366,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   const [newbuttonState, setNewButtonState] = useState(true)
 
   const updateButtonState = (value: any, data: any, detail: any) => {
-    
+
     setNewButtonState(!newbuttonState)
     if (data == "disable") {
       toast.error("cannot select")
@@ -374,7 +374,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     }
 
     if (data == "enable") {
-      setConfirmationModal(true)
+      setReverseModal(false)
       setActionValue({
         value: value,
         data: data,
@@ -389,22 +389,21 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         detail: detail
       })
     }
+
+    updateOutCome(value, data, detail);
   }
 
   const updateOutCome = (value: any, data: any, detail: any) => {
-
-    setReverseModal(false);
-    setConfirmationModal(false)
 
     const { appointment_id, uuid } = detail;
     const payload = {
       appointment_id: appointment_id,
       screening_id: uuid,
-      action:  data === "enable"? getAction2(value) : getAction(value)
+      action: data === "enable" ? getAction2(value) : getAction(value)
     }
- 
+
     dispatch(updateAppointmentDetail(payload)).then((res) => {
-      console.log(res, "dfhdfhdvfdf")
+      !reverseModal ? toast.success("Succesfully reversed the action taken") : null
       appointmentDetails(appointment_id);
       handleAddEventData("FRONTEND_TILE_CLICK_ACTION", `FRONTEND_TILE_CLICK_ACTION${value}`, `FRONTEND_TILE_CLICK_ACTION${value}`)
       dispatch(getAppointmentDetailMulti({ appointment_id: res?.meta?.arg?.appointment_id }))
@@ -414,8 +413,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         page_size: 200,
         appointment_start_date: formattedDates.start,
         appointment_end_date: formattedDates.end,
-        hide_complete_appointments:completedActions,
-        hide_zero_screenings:zeroScreenings
+        hide_complete_appointments: completedActions,
+        hide_zero_screenings: zeroScreenings
       };
       dispatch(getAllAppointments(payload));
     }).catch(() => {
@@ -449,8 +448,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       file_type: 'pdf',
       timezone: timezone,
       page: 1,
-      hide_complete_appointments:completedActions,
-        hide_zero_screenings:zeroScreenings
+      hide_complete_appointments: completedActions,
+      hide_zero_screenings: zeroScreenings
 
     };
     const url = `${API_URL}download-appointments/?${urlParams(appliedFilters)}`;
@@ -488,8 +487,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       appointment_start_date: formattedDates.start,
       appointment_end_date: formattedDates.end,
       timezone: timezone,
-      hide_complete_appointments:completedActions,
-        hide_zero_screenings:zeroScreenings
+      hide_complete_appointments: completedActions,
+      hide_zero_screenings: zeroScreenings
     };
     setMainLoader(true);
     setSelectedVisitType([]);
@@ -527,8 +526,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         appointment_start_date: formattedDates.start,
         appointment_end_date: formattedDates.end,
         timezone: timezone,
-        hide_complete_appointments:completedActions,
-        hide_zero_screenings:zeroScreenings
+        hide_complete_appointments: completedActions,
+        hide_zero_screenings: zeroScreenings
       };
 
       dispatch(updateFilter(filtersData));
@@ -546,8 +545,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         ...filters,
         page: 1,
         page_size: 10,
-        hide_complete_appointments:completedActions,
-        hide_zero_screenings:zeroScreenings,
+        hide_complete_appointments: completedActions,
+        hide_zero_screenings: zeroScreenings,
         patient_name: e.target.value
       };
       setTimeout(() => {
@@ -571,8 +570,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         page: 1,
         page_size: 10,
         patient_name: newVal,
-        hide_complete_appointments:completedActions,
-        hide_zero_screenings:zeroScreenings
+        hide_complete_appointments: completedActions,
+        hide_zero_screenings: zeroScreenings
       };
 
       dispatch(emptyAppointmentList());
@@ -597,8 +596,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         page: 1,
         page_size: 10,
         patient_name: '',
-        hide_complete_appointments:completedActions,
-        hide_zero_screenings:zeroScreenings
+        hide_complete_appointments: completedActions,
+        hide_zero_screenings: zeroScreenings
       };
 
       setSelectedVisitType(payload.visit_type);
@@ -618,8 +617,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       appointment_end_date: formattedDates.end,
       page: 1,
       page_size: 10,
-      hide_complete_appointments:completedActions,
-        hide_zero_screenings:zeroScreenings
+      hide_complete_appointments: completedActions,
+      hide_zero_screenings: zeroScreenings
     };
     dispatch(updateFilter(filter));
     dispatch(emptyAppointmentList());
@@ -633,8 +632,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       sort_by: isAppointmentTimeSortAscending ? 'appointment_timestamp' : '-appointment_timestamp',
       page: 1,
       page_size: 10,
-      hide_complete_appointments:completedActions,
-        hide_zero_screenings:zeroScreenings
+      hide_complete_appointments: completedActions,
+      hide_zero_screenings: zeroScreenings
     };
 
 
@@ -650,8 +649,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       sort_by: isPatientNameSortAscending ? 'patient__patient_first_name' : '-patient__patient_first_name',
       page: 1,
       page_size: 10,
-      hide_complete_appointments:completedActions,
-        hide_zero_screenings:zeroScreenings
+      hide_complete_appointments: completedActions,
+      hide_zero_screenings: zeroScreenings
     };
     dispatch(updateFilter(filtersData));
     dispatch(emptyAppointmentList());
@@ -704,8 +703,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     setExpand(value);
     if (firstElementRef.current) {
       firstElementRef.current.scrollIntoView({
-        behavior: 'smooth', 
-        block: 'start',  
+        behavior: 'smooth',
+        block: 'start',
       });
     }
   }
@@ -716,26 +715,26 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
 
   // ****************************************** Show and hide appointments
 
-  const handleCompletedActionsChange = (event:any) => {
+  const handleCompletedActionsChange = (event: any) => {
     setCompletedActions(event.target.checked);
   };
 
-  const handleZeroScreeningsChange = (event:any) => {
+  const handleZeroScreeningsChange = (event: any) => {
     setZeroScreenings(event.target.checked);
   };
 
-  useEffect(()=>{
+  useEffect(() => {
 
     const filtersData = {
       ...filters,
       sort_by: isPatientNameSortAscending ? 'patient__patient_first_name' : '-patient__patient_first_name',
       page: 1,
       page_size: 10,
-      hide_complete_appointments:completedActions,
-        hide_zero_screenings:zeroScreenings
+      hide_complete_appointments: completedActions,
+      hide_zero_screenings: zeroScreenings
     };
-    
-  loadMoreAppointment(filtersData)
+
+    loadMoreAppointment(filtersData)
   }, [zeroScreenings, completedActions])
 
   return (
@@ -797,10 +796,12 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
           </RightPrint>
         </MainBoxTop>
 
-        <TableDiv sx={{  height: {
-      xs: "auto", // For extra-small devices, make the height auto
-      sm: "80vh" // For small and above, cover the full viewport height
-    }}}>
+        <TableDiv sx={{
+          height: {
+            xs: "auto", // For extra-small devices, make the height auto
+            sm: "80vh" // For small and above, cover the full viewport height
+          }
+        }}>
           <TableTopMain>
             <Box sx={{ display: 'flex' }}>
               <FilterMenu>
@@ -860,34 +861,34 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
             </Box>
 
             <HideShow>
-      <Typography component='p'>Hide:</Typography>
-      <Box sx={{ display: 'flex', paddingInline: '8px' }}>
-        <FormControlLabel
-          control={
-            <Checkbox
-              icon={<UncheckedIcon />}
-              checkedIcon={<CheckedIcon />}
-              checked={completedActions}
-              onChange={handleCompletedActionsChange}
-              disabled={appointmentsList.length <= 0}
-            />
-          }
-          label="Completed Actions"
-        />
-        <FormControlLabel
-          control={
-            <Checkbox
-              icon={<UncheckedIcon />}
-              checkedIcon={<CheckedIcon />}
-              checked={zeroScreenings}
-              onChange={handleZeroScreeningsChange}
-              disabled={appointmentsList.length <= 0}
-            />
-          }
-          label="Zero Screenings"
-        />
-      </Box>
-    </HideShow>
+              <Typography component='p'>Hide:</Typography>
+              <Box sx={{ display: 'flex', paddingInline: '8px' }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      icon={<UncheckedIcon />}
+                      checkedIcon={<CheckedIcon />}
+                      checked={completedActions}
+                      onChange={handleCompletedActionsChange}
+                      disabled={appointmentsList.length <= 0}
+                    />
+                  }
+                  label="Completed Actions"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      icon={<UncheckedIcon />}
+                      checkedIcon={<CheckedIcon />}
+                      checked={zeroScreenings}
+                      onChange={handleZeroScreeningsChange}
+                      disabled={appointmentsList.length <= 0}
+                    />
+                  }
+                  label="Zero Screenings"
+                />
+              </Box>
+            </HideShow>
 
             <ExpendSection>
               {/* <Typography component={'p'}>Expand:</Typography>
@@ -943,7 +944,11 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
 
           {!isPatientNotFound && !isClearFilter && (
             <TableMainContainer sx={{ height: windowHeight - 250 }}>
-              <Table aria-label="collapsible table">
+              <Table sx={{
+                '.mui-799qhl-MuiTableCell-root': {
+                  border: "none !important"
+                }
+              }} aria-label="collapsible table">
                 <Table_Head sx={{ backgroundColor: "#17236D", color: "#fff" }}>
                   <TableRow>
                     <StyledTableCell onClick={() => handleAppointmentTimeSort()}>
@@ -971,35 +976,48 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
                         </LoaderBox>
                       </TableMidData>
                     </TableRow>
-                  </TableBody> : <TableBody>
+                  </TableBody> : <TableBody  >
                     {appointmentsList.map(
                       (appointment: AppointmentState, index: number) => (
-                        <Row
-                        newbuttonState={newbuttonState}
-                        appointmentsList={appointmentsList}
-                          firstElementRef={firstElementRef}
-                          id={appointmentsList[0]?.uuid}
-                          expand={index < 10 ? expand : false}
-                          setExpand={setExpand}
-                          key={index}
-                          appointment={appointment}
-                          selectedAppointmentUuid={selectedAppointmentUuid}
-                          setSelectedAppointmentUuid={setSelectedAppointmentUuid}
-                          appointmentDetail={appointmentDetail}
-                          appointmentDetails={appointmentDetails}
-                          updateOutCome={updateOutCome}
-                          isDetailLoading={isDetailLoading}
-                          setLoaderAppoint={setLoaderAppoint}
-                          loaderAppoint={loaderAppoint}
-                          updateButtonState={updateButtonState}
-                          confirmationModal={confirmationModal}
-                          reverseModal={reverseModal}
-                          setConfirmationModal={setConfirmationModal}
-                          setReverseModal={setReverseModal}
-                          actionValue={actionValue}
-                          setSelectedAppointmentGap={setSelectedAppointmentGap}
-                          selectedAppointmentGap={selectedAppointmentGap}
-                        />
+                        <>
+
+                          <TableRow >
+                            <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
+                            <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
+                            <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
+                            <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
+                            <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
+                            <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
+                          </TableRow>
+                          <Row
+
+                            newbuttonState={newbuttonState}
+                            appointmentsList={appointmentsList}
+                            firstElementRef={firstElementRef}
+                            id={appointmentsList[0]?.uuid}
+                            expand={index < 10 ? expand : false}
+                            setExpand={setExpand}
+                            key={index}
+                            appointment={appointment}
+                            selectedAppointmentUuid={selectedAppointmentUuid}
+                            setSelectedAppointmentUuid={setSelectedAppointmentUuid}
+                            appointmentDetail={appointmentDetail}
+                            appointmentDetails={appointmentDetails}
+                            updateOutCome={updateOutCome}
+                            isDetailLoading={isDetailLoading}
+                            setLoaderAppoint={setLoaderAppoint}
+                            loaderAppoint={loaderAppoint}
+                            updateButtonState={updateButtonState}
+                            confirmationModal={confirmationModal}
+                            reverseModal={reverseModal}
+                            setConfirmationModal={setConfirmationModal}
+                            setReverseModal={setReverseModal}
+                            actionValue={actionValue}
+                            setSelectedAppointmentGap={setSelectedAppointmentGap}
+                            selectedAppointmentGap={selectedAppointmentGap}
+                          />
+
+                        </>
                       )
                     )}
                   </TableBody>
