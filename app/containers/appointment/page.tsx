@@ -53,6 +53,7 @@ import { addEventData, addOtherData, EventData, getAllEventData, getAllOtherData
 import { useCallback } from 'react';
 import { clearDB } from '@/app/utils/indexeddb';
 import { UncheckedIcon, CheckedIcon } from "../../images/check"
+import { max } from 'date-fns';
 
 const Row = dynamic(() => import('@/app/components/tableRow/index').then((mod) => mod), {
   ssr: false,
@@ -413,8 +414,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         page_size: 200,
         appointment_start_date: formattedDates.start,
         appointment_end_date: formattedDates.end,
-        hide_complete_appointments: completedActions,
-        hide_zero_screenings: zeroScreenings
       };
       dispatch(getAllAppointments(payload));
     }).catch(() => {
@@ -448,9 +447,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       file_type: 'pdf',
       timezone: timezone,
       page: 1,
-      hide_complete_appointments: completedActions,
-      hide_zero_screenings: zeroScreenings
-
     };
     const url = `${API_URL}download-appointments/?${urlParams(appliedFilters)}`;
     fetch(url, { method: 'get', headers: { "Authorization": `JWT ${accessToken()}` } })
@@ -487,8 +483,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       appointment_start_date: formattedDates.start,
       appointment_end_date: formattedDates.end,
       timezone: timezone,
-      hide_complete_appointments: completedActions,
-      hide_zero_screenings: zeroScreenings
     };
     setMainLoader(true);
     setSelectedVisitType([]);
@@ -526,8 +520,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         appointment_start_date: formattedDates.start,
         appointment_end_date: formattedDates.end,
         timezone: timezone,
-        hide_complete_appointments: completedActions,
-        hide_zero_screenings: zeroScreenings
+
       };
 
       dispatch(updateFilter(filtersData));
@@ -545,8 +538,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         ...filters,
         page: 1,
         page_size: 10,
-        hide_complete_appointments: completedActions,
-        hide_zero_screenings: zeroScreenings,
+
         patient_name: e.target.value
       };
       setTimeout(() => {
@@ -570,8 +562,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         page: 1,
         page_size: 10,
         patient_name: newVal,
-        hide_complete_appointments: completedActions,
-        hide_zero_screenings: zeroScreenings
+
       };
 
       dispatch(emptyAppointmentList());
@@ -596,8 +587,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         page: 1,
         page_size: 10,
         patient_name: '',
-        hide_complete_appointments: completedActions,
-        hide_zero_screenings: zeroScreenings
+
       };
 
       setSelectedVisitType(payload.visit_type);
@@ -617,8 +607,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       appointment_end_date: formattedDates.end,
       page: 1,
       page_size: 10,
-      hide_complete_appointments: completedActions,
-      hide_zero_screenings: zeroScreenings
+
     };
     dispatch(updateFilter(filter));
     dispatch(emptyAppointmentList());
@@ -632,8 +621,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       sort_by: isAppointmentTimeSortAscending ? 'appointment_timestamp' : '-appointment_timestamp',
       page: 1,
       page_size: 10,
-      hide_complete_appointments: completedActions,
-      hide_zero_screenings: zeroScreenings
+
     };
 
 
@@ -649,8 +637,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       sort_by: isPatientNameSortAscending ? 'patient__patient_first_name' : '-patient__patient_first_name',
       page: 1,
       page_size: 10,
-      hide_complete_appointments: completedActions,
-      hide_zero_screenings: zeroScreenings
+
     };
     dispatch(updateFilter(filtersData));
     dispatch(emptyAppointmentList());
@@ -677,6 +664,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     }
     setDate(selectedDate);
     const selectedDay = selectedDate.getDate();
+    const selectedMonth = selectedDate.getMonth();
 
     const minDateOnly = new Date(currentDate);
     minDateOnly.setDate(currentDay - past_calendar_days_count);
@@ -687,9 +675,9 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     setArrowDisabledLeft(false);
 
 
-    if (minDateOnly.getDate() === selectedDay) {
+    if (minDateOnly.getDate() === selectedDay && minDateOnly.getMonth() === selectedMonth) {
       setArrowDisabledLeft(true);
-    } else if (maxDateOnly.getDate() === selectedDay) {
+    } else if (maxDateOnly.getDate() === selectedDay && minDateOnly.getMonth() === selectedMonth) {
       setArrowDisabledRight(true);
     }
 
@@ -717,25 +705,36 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
 
   const handleCompletedActionsChange = (event: any) => {
     setCompletedActions(event.target.checked);
+
+    const filtersData = {
+      ...filters,
+      page: 1,
+      page_size: 10,
+      hide_complete_appointments: event.target.checked,
+      hide_zero_screenings: zeroScreenings
+    };
+    setMainLoader(true);
+    setIsFilterApplied(true);
+    dispatch(updateFilter(filtersData));
+    dispatch(emptyAppointmentList());
+    loadMoreAppointment(filtersData)
   };
 
   const handleZeroScreeningsChange = (event: any) => {
     setZeroScreenings(event.target.checked);
-  };
-
-  useEffect(() => {
-
     const filtersData = {
       ...filters,
-      sort_by: isPatientNameSortAscending ? 'patient__patient_first_name' : '-patient__patient_first_name',
       page: 1,
       page_size: 10,
       hide_complete_appointments: completedActions,
-      hide_zero_screenings: zeroScreenings
+      hide_zero_screenings: event.target.checked,
     };
-
-    loadMoreAppointment(filtersData)
-  }, [zeroScreenings, completedActions])
+    setMainLoader(true);
+    setIsFilterApplied(true);
+    dispatch(updateFilter(filtersData));
+    dispatch(emptyAppointmentList());
+    loadMoreAppointment(filtersData);
+  };
 
   return (
     <>
@@ -862,8 +861,10 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
 
             <HideShow>
               <Typography component='p'>Hide:</Typography>
-              <Box sx={{ display: 'flex', paddingInline: '8px' }}>
+              <Box sx={{ display: 'flex', paddingInline: '6px', gap: 0 }}>
+
                 <FormControlLabel
+                  sx={{ gap: "0 !important" }}
                   control={
                     <Checkbox
                       icon={<UncheckedIcon />}
@@ -875,7 +876,9 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
                   }
                   label="Completed Actions"
                 />
+
                 <FormControlLabel
+                  sx={{ gap: "0 !important" }}
                   control={
                     <Checkbox
                       icon={<UncheckedIcon />}
@@ -887,6 +890,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
                   }
                   label="Zero Screenings"
                 />
+
               </Box>
             </HideShow>
 

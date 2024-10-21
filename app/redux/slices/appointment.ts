@@ -100,7 +100,7 @@ const initialState: AppointmentsState = {
     appointment_end_date: formattedDates.end,
     timezone: timezone,
     hide_complete_appointments:false,
-    hide_zero_screenings: true
+    hide_zero_screenings: false
   },
   selectedFilterList: [],
   selectedFilterDetail: null,
@@ -129,7 +129,7 @@ export const appointment = createSlice({
       state.isAppointmentLoading = true;
     });
     builder.addCase(getAppointmentsList.rejected, (state, action) => {
-      console.log(state, action, 'rejected');
+      // console.log(state, action, 'rejected');
       state.isAppointmentLoading = false;
     });
     builder.addCase(getAppointmentsList.fulfilled, (state, { payload }) => {
@@ -141,7 +141,7 @@ export const appointment = createSlice({
       state.isDetailLoading = true;
     });
     builder.addCase(getAppointmentDetail.rejected, (state, action) => {
-      console.log(state, action, 'rejected');
+      // console.log(state, action, 'rejected');
       state.isDetailLoading = false;
     });
     builder.addCase(getAppointmentDetail.fulfilled, (state, { payload }) => {
@@ -154,7 +154,7 @@ export const appointment = createSlice({
       state.isDetailLoading = true;
     });
     builder.addCase(getAppointmentDetailMulti.rejected, (state, action) => {
-      console.log(state, action, 'rejected');
+      // console.log(state, action, 'rejected');
       state.isDetailLoading = false;
     });
 
@@ -183,17 +183,18 @@ export const appointment = createSlice({
     builder.addCase(updateAppointmentDetail.pending, (state, action) => {
     });
     builder.addCase(updateAppointmentDetail.rejected, (state, action) => {
-      console.log(state, action, 'rejected');
+      // console.log(state, action, 'rejected');
     });
     builder.addCase(updateAppointmentDetail.fulfilled, (state, { payload }) => {
       console.log(state, payload, 'fulfilled');
+    
     });
 
     builder.addCase(getFiltersData.pending, (state, action) => {
       state.isFilterDataLoading = true;
     });
     builder.addCase(getFiltersData.rejected, (state, action) => {
-      console.log(state, action, 'rejected');
+      // console.log(state, action, 'rejected');
       state.isFilterDataLoading = false;
     });
     builder.addCase(getFiltersData.fulfilled, (state, { payload }) => {
@@ -205,7 +206,7 @@ export const appointment = createSlice({
       state.isFilterDataLoading = true;
     });
     builder.addCase(getSelectedFilterList.rejected, (state, action) => {
-      console.log(state, action, 'rejected');
+      // console.log(state, action, 'rejected');
       state.isFilterDataLoading = false;
     });
     builder.addCase(getSelectedFilterList.fulfilled, (state, { payload }) => {

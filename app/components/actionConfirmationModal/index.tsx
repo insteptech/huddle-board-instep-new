@@ -37,8 +37,6 @@ const ActionConfirmation = (props: any) => {
         setConfirmationModal(!confirmationModal)
     }
 
-    console.log(actionValue , "actionValue")
-
     useEffect(() => {
         if (actionValue.value == "accept") {
             setDisplayValue("Accept")
