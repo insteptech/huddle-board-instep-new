@@ -406,7 +406,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     }
 
     dispatch(updateAppointmentDetail(payload)).then((res) => {
-      console.log(res, "qwertyuiop")
       res?.payload?.request_data.accept ? toast.success(
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent:"space-between" }}>
