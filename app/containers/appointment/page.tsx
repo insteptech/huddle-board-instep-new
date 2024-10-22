@@ -406,7 +406,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     }
 
     dispatch(updateAppointmentDetail(payload)).then((res) => {
-      res?.payload?.request_data.accept ? toast.success(
+      
+      (res?.payload?.request_data?.accept || res?.payload?.request_data?.reject) ? toast.success(
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent:"space-between" }}>
             <FaCheckCircle style={{ color: '#2ECC71', marginRight: '10px' }} />
