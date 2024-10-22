@@ -406,11 +406,12 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     }
 
     dispatch(updateAppointmentDetail(payload)).then((res) => {
-      !reverseModal ? toast.success(
+      console.log(res, "qwertyuiop")
+      res?.payload?.request_data.accept ? toast.success(
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent:"space-between" }}>
             <FaCheckCircle style={{ color: '#2ECC71', marginRight: '10px' }} />
-            Action reverted successfully
+            Action updated successfully
           </div>
           <IoMdClose
             style={{ color: '#000000', cursor: 'pointer' }}
@@ -435,7 +436,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <FaCheckCircle style={{ color: '#2ECC71', marginRight: '10px' , justifyContent:"space-between" }} />
-            Action Updated successfully
+            Action reverted successfully
           </div>
           <IoMdClose style={{ color: '#000000', cursor: 'pointer' }} onClick={() => toast.dismiss()} />
         </div>,
