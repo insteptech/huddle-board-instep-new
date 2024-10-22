@@ -22,6 +22,7 @@ import { ExpendSection, HideShow, LoaderBox } from '../../styles/customStyle';
 import pdfIcon from "../../images/pdficon.svg";
 import moment from 'moment-timezone';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { IoMdClose } from 'react-icons/io';  // close icon
 
 import {
   HeadingTag,
@@ -54,6 +55,7 @@ import { useCallback } from 'react';
 import { clearDB } from '@/app/utils/indexeddb';
 import { UncheckedIcon, CheckedIcon } from "../../images/check"
 import { max } from 'date-fns';
+import { FaCheckCircle } from 'react-icons/fa';  // for success icon
 
 const Row = dynamic(() => import('@/app/components/tableRow/index').then((mod) => mod), {
   ssr: false,
@@ -404,7 +406,54 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     }
 
     dispatch(updateAppointmentDetail(payload)).then((res) => {
-      !reverseModal ? toast.success("Succesfully reversed the action taken") : null
+      !reverseModal ? toast.success(
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent:"space-between" }}>
+            <FaCheckCircle style={{ color: '#2ECC71', marginRight: '10px' }} />
+            Action reverted successfully
+          </div>
+          <IoMdClose
+            style={{ color: '#000000', cursor: 'pointer' }}
+            onClick={() => toast.dismiss()}
+          />
+        </div>,
+        {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: true,
+          closeOnClick: false,  // Custom close button handles clicks
+          pauseOnHover: true,
+          draggable: true,
+          icon: false,  // Remove default icon
+          closeButton: false,  // Disable the default close button
+          style: {
+            backgroundColor: '#F8FFFC',  // Custom green color
+            color: '#2ECC71',  // Text color
+          }
+        }
+      ) : toast.success(
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <FaCheckCircle style={{ color: '#2ECC71', marginRight: '10px' , justifyContent:"space-between" }} />
+            Action Updated successfully
+          </div>
+          <IoMdClose style={{ color: '#000000', cursor: 'pointer' }} onClick={() => toast.dismiss()} />
+        </div>,
+        {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: true,
+          closeOnClick: false,  // Custom close button handles clicks
+          pauseOnHover: true,
+          draggable: true,
+          icon: false,  // Remove default icon
+          closeButton: false,  // Disable the default close button
+          style: {
+            backgroundColor: '#F8FFFC',  // Custom green color
+            color: '#2ECC71',  // Text color
+          }
+        }
+      );
       appointmentDetails(appointment_id);
       handleAddEventData("FRONTEND_TILE_CLICK_ACTION", `FRONTEND_TILE_CLICK_ACTION${value}`, `FRONTEND_TILE_CLICK_ACTION${value}`)
       dispatch(getAppointmentDetailMulti({ appointment_id: res?.meta?.arg?.appointment_id }))
@@ -417,7 +466,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       };
       dispatch(getAllAppointments(payload));
     }).catch(() => {
-      // toast.error("Update failed");
+      ;
       handleAddEventData("FRONTEND_TILE_CLICK_ACTION", `FRONTEND_TILE_CLICK_ACTION${value}`, `FRONTEND_TILE_CLICK_ACTION${value}`)
     })
   }
