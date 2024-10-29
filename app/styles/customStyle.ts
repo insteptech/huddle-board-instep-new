@@ -246,6 +246,20 @@ export const SpanText = styled(Typography)(({ div }: any) => ({
   marginRight: '5px',
 }));
 
+export const SpanText2 = styled(Typography)(({ div }: any) => ({
+  border: '1px solid #FECDCA',
+  fontSize: '12px',
+  fontWeight: '500',
+  lineHeight: '18px',
+  textAlign: 'center',
+  padding: '2px 12px',
+  display: 'inline-block',
+  borderRadius: '16px',
+  color: '#B42318',
+  background: '#FEF3F2',
+  marginRight: '5px',
+}));
+
 export const HeadingTag = styled(Typography)(({ div }: any) => ({
   fontSize: '24px',
   fontWeight: '700',
@@ -427,6 +441,7 @@ export const MainBoxHeading = styled(Typography)(({ div }: any) => ({
   textAlign: 'left',
   color: '#172B4D',
   margin: '20px 0',
+  
 }));
 
 export const MainBoxSubHeading = styled(Typography)(({ div }: any) => ({

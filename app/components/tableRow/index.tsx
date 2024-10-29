@@ -12,7 +12,7 @@ import {
     TableBody,
     CircularProgress,
 } from '@mui/material';
-import { LoaderBox } from '../../styles/customStyle';
+import { LoaderBox, SpanText2 } from '../../styles/customStyle';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -49,6 +49,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
 
 function GetScreening({ screening }: { screening: string[] }) {
+
+    if (screening[0] === "No Screening Data Available") {
+        return (
+            <>
+                {screening.slice(0, 3).map((screen, index) => (
+                    <SpanText2 >{"No Screening Data Available"}</SpanText2>
+                ))}
+                {screening.length > 3 && <SpanText>+ {screening.length - 3}</SpanText>}
+            </>
+        );
+    }
     return (
         <>
             {screening.slice(0, 3).map((screen, index) => (
@@ -60,17 +71,13 @@ function GetScreening({ screening }: { screening: string[] }) {
 }
 
 
-
-
-
-
 const Row = (props: any) => {
     const { appointment, appointmentsList, newbuttonState, selectedAppointmentUuid, firstElementRef, id, expand, selectedAppointmentGap, setExpand, setSelectedAppointmentGap, loaderAppoint, setSelectedAppointmentUuid, reverseModal, updateButtonState, setReverseModal, setLoaderAppoint, appointmentDetails, appointmentDetail, updateOutCome, isDetailLoading, confirmationModal, setConfirmationModal, actionValue } = props;
     const [open, setOpen] = useState(false);
     const [isCopied, setIsCopied] = useState(false);
     const dispatch = useDispatch<AppDispatch>();
     const appointmentDetailMulti = useSelector((state: AppState) => state.appointment?.appointmentDetailMulti) || [];
-
+    const [copyMrnRow , setCopyMrnRow] = useState(false);
     // useEffect(() => {
     //     if (expand === true) {
     //         setOpen(false)
@@ -85,7 +92,19 @@ const Row = (props: any) => {
         }
     }, [expand, appointmentDetailMulti])
 
+    const copyMrn = (mrn: any, event:any) => {
+        event.stopPropagation();
+        setRow(null , 0)
+        navigator.clipboard.writeText(mrn);
+        setIsCopied(true);
+        
+    }
+
     const setRow = (id: any, gap?: number) => {
+        if(id === null && gap === 0){
+            return
+        }
+         
         setLoaderAppoint(true);
         setSelectedAppointmentUuid(id);
         appointmentDetails(id);
@@ -94,11 +113,6 @@ const Row = (props: any) => {
         setExpand(false)
 
     };
-
-    const copyMrn = (mrn: any) => {
-        navigator.clipboard.writeText(mrn);
-        setIsCopied(true);
-    }
 
     const renderCellContent = (content: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | Promise<React.AwaitedReactNode> | null | undefined, isBold: boolean) => (
         isBold ? <FontBold>{content}</FontBold> : <StyledText>{content}</StyledText>
@@ -137,7 +151,7 @@ const Row = (props: any) => {
                             MRN: {appointment.mrn}
                             <Tooltip title={isCopied ? "Copied" : "Copy"} placement="top">
                                 <ContentCopyIcon
-                                    onClick={() => copyMrn(appointment.mrn)}
+                                    onClick={(event) => copyMrn(appointment.mrn , event)}
                                     sx={{ verticalAlign: 'middle', color: '#17236D', fontSize: '15px', marginLeft: '5px' }}
                                 />
                             </Tooltip>
@@ -146,7 +160,7 @@ const Row = (props: any) => {
                 </TdTableCell>
                 <TdTableCell>{renderCellContent(appointment.visit_type, appointment.selected_gap_count === 0)}</TdTableCell>
                 <TdTableCell>{renderCellContent(appointment.provider, appointment.selected_gap_count === 0)}</TdTableCell>
-                <TdTableCell><GetScreening screening={appointment.screening} /></TdTableCell>
+                <TdTableCell><GetScreening screening={appointment.screening.length > 0 ? appointment.screening : ["No Screening Data Available"]} /></TdTableCell>
 
                 <TdTableCell>
                     {
@@ -163,14 +177,14 @@ const Row = (props: any) => {
                                         height: '16px',
                                         width: '16px',
                                         marginLeft: '20px',
-                                        borderRadius:'50%'
+                                        borderRadius: '50%'
                                     }} /></Tooltip></> : <><Tooltip title="Expand" placement="top"><KeyboardArrowDownIcon sx={{
                                         color: 'black',
                                         border: '1px solid black',
                                         height: '16px',
                                         width: '16px',
                                         marginLeft: '20px',
-                                        borderRadius:'50%'
+                                        borderRadius: '50%'
                                     }} /></Tooltip></>}
                                 </IconButton>
                             </IconProgress>
@@ -187,14 +201,14 @@ const Row = (props: any) => {
                                         height: '16px',
                                         width: '16px',
                                         marginLeft: '20px',
-                                        borderRadius:'50%'
+                                        borderRadius: '50%'
                                     }} /></Tooltip></> : <><Tooltip title="Expand" placement="top"><KeyboardArrowDownIcon sx={{
                                         color: 'black',
                                         border: '1px solid black',
                                         height: '16px',
                                         width: '16px',
                                         marginLeft: '20px',
-                                        borderRadius:'50%'
+                                        borderRadius: '50%'
                                     }} /></Tooltip></>}
                                 </IconButton>
                             </IconProgress>
@@ -208,11 +222,7 @@ const Row = (props: any) => {
                         <Box>
                             {
                                 appointment.gap_count === 0 ? <Table>
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableMidData sx={{ textAlign: "center", fontWeight: "600", padding: "25px 0", backgroundColor: "#EBF4FF", border: "1px solid #B1C6E2 !important" }}>No Screening Data Available</TableMidData>
-                                        </TableRow>
-                                    </TableHead>
+
                                 </Table>
                                     :
                                     <Table size="small" aria-label="purchases">

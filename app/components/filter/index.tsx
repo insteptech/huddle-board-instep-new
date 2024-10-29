@@ -253,6 +253,17 @@ function FilterButton(props: any) {
     getFilterDetail(list)
   }
 
+  const statusKeys = [{
+    "uuid": "1",
+    "name": "Open"
+  }, {
+    "uuid": "2",
+    "name": "In Progress"
+  }, {
+    "uuid": "3",
+    "name": "Completed"
+  }];
+
   return (
     <>
       <Box
@@ -388,6 +399,26 @@ function FilterButton(props: any) {
                             Clinician ({provider?.length})
                           </TableCellHd>
                           {provider?.map((pro: any, index: number) => (
+                            <TableCellTd key={index}>
+                              <label>
+                                <CheckboxInner
+                                  key={index}
+                                  sx={{ "& .MuiSvgIcon-root": { fontSize: 16 } }}
+                                  {...label}
+                                  onClick={() => handleProvidersFilterClick(pro)}
+                                  checked={selectedProviders?.includes(pro.uuid) || false}
+                                />
+                                {pro.name}
+                              </label>
+                            </TableCellTd>
+                          ))}
+                        </TableDataList>
+
+                        <TableDataList>
+                          <TableCellHd>
+                            Status
+                          </TableCellHd>
+                          {statusKeys?.map((pro: any, index: number) => (
                             <TableCellTd key={index}>
                               <label>
                                 <CheckboxInner

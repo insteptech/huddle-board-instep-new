@@ -55,7 +55,6 @@ const ActionConfirmation = (props: any) => {
         }
     })
 
-
     return (
         <React.Fragment>
             <Dialog

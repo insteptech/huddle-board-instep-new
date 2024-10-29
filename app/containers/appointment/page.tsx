@@ -278,28 +278,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   };
 
 
-
-
-  // useEffect(() => {
-  //   const refreshToken = localStorage.getItem('refresh_token');
-  //   const accessToken = localStorage.getItem('access_token');
-
-  //   if (!refreshToken || !accessToken) {
-  //     window.location.href = "/tokenExpired";
-  //     return; 
-  //   }
-
-  //   if (isTokenExpired(refreshToken)) {
-  //     window.location.href = "/tokenExpired";
-  //     return; 
-  //   }
-
-  //   if (isTokenExpired(accessToken)) {
-  //     window.location.href = "/tokenExpired";
-  //     return; 
-  // }
-  // },[]);
-
   useEffect(() => {
     if (!loginAuthentication() && !notAuthenticated()) {
       window.location.href = '/unauthorized';
@@ -989,7 +967,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
                           </LoaderBox>
                         </TableMidData>
                       </TableRow>
-                      : <PatientNotFound icon={isFilterApplied} resetFilters={resetFilters} />
+                      : <PatientNotFound searchTerm = {patientNameSearch} icon={isFilterApplied} resetFilters={resetFilters} />
                   }
                 </TableBody>
               </Table>
