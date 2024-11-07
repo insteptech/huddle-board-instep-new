@@ -45,7 +45,8 @@ export type FiltersDataState = {
   sort_by?: string,
   timezone?: String,
   hide_complete_appointments?:boolean,
-  hide_zero_screenings?:boolean
+  hide_zero_screenings?:boolean,
+  show_cancelled_appointments?:boolean
 }
 
 export type AppointmentFiltersDataState = {
@@ -100,7 +101,8 @@ const initialState: AppointmentsState = {
     appointment_end_date: formattedDates.end,
     timezone: timezone,
     hide_complete_appointments:false,
-    hide_zero_screenings: false
+    hide_zero_screenings: false,
+    show_cancelled_appointments: false
   },
   selectedFilterList: [],
   selectedFilterDetail: null,
@@ -162,23 +164,33 @@ export const appointment = createSlice({
       if (!Array.isArray(state.appointmentDetailMulti)) {
         state.appointmentDetailMulti = [];
       }
+      
       payload.forEach((item:any) => {
         const { uuid } = item;
         if (!uuid) {
           return;
         }
-        const exists = state.appointmentDetailMulti.some(appointment => appointment.uuid === uuid);
-    
-        if (!exists) {
+        
+        const index = state.appointmentDetailMulti.findIndex(appointment => appointment.uuid === uuid);
+        
+        if (index === -1) {
+          // If the item does not exist, push it to the array
           state.appointmentDetailMulti.push({
             ...item,
-            sentUuid: meta.arg
+            sentUuid: meta.arg,
           });
         } else {
+          // If the item exists, replace it
+          state.appointmentDetailMulti[index] = {
+            ...item,
+            sentUuid: meta.arg,
+          };
         }
       });
+    
       state.isDetailLoading = false;
     });
+    
     
     builder.addCase(updateAppointmentDetail.pending, (state, action) => {
     });

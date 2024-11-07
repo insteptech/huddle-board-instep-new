@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Menu from '@mui/material/Menu';
 import TuneIcon from '@mui/icons-material/Tune';
 import { Box, CircularProgress } from '@mui/material';
@@ -38,7 +38,7 @@ import { toast } from 'react-toastify';
 import DeleteFilterModal from '../deleteFilterModal';
 
 function FilterButton(props: any) {
-  const { getAppointmentFiltersData, handleAddEventData, isFilterApplied, appointmentFiltersData, setMainLoader, isFilterDataLoading, loadMoreAppointment, filters, selectedFilterList, setSelectedVisitType, setSelectedScreening, setSelectedProviders, setAnchorEl, anchorEl, selectedVisitType, selectedScreening, selectedProviders, resetFilters, getFilterDetail, selectedSavedFilterUuid, setIsFilterApplied } = props;
+  const { getAppointmentFiltersData,selectedStatus, setSelectedStatus, handleAddEventData, isFilterApplied, appointmentFiltersData, setMainLoader, isFilterDataLoading, loadMoreAppointment, filters, selectedFilterList, setSelectedVisitType, setSelectedScreening, setSelectedProviders, setAnchorEl, anchorEl, selectedVisitType, selectedScreening, selectedProviders, resetFilters, getFilterDetail, selectedSavedFilterUuid, setIsFilterApplied } = props;
   const { patient_screening, provider, visit_type } = appointmentFiltersData || {};
 
   const label = { inputProps: { "aria-label": "Checkbox demo" } };
@@ -53,6 +53,18 @@ function FilterButton(props: any) {
   const dispatch = useDispatch<AppDispatch>();
   const selectedFilterDetail = useSelector((state: AppState) => state.appointment.selectedFilterDetail);
   const [filterName, setFilterName] = React.useState(isEditModalOpen ? selectedFilterDetail?.name : " ");
+
+  
+
+  const statusKeys = [
+    { name: "Active" },
+    { name: "Inactive" }
+  ];
+
+  const handleStatusSelection = (pro: { name: string }) => {
+    setSelectedStatus(pro.name);
+  };
+
 
 
   const modalToggle = () => {
@@ -80,7 +92,7 @@ function FilterButton(props: any) {
   };
 
   const isEmptyFilter = () => {
-    if (selectedVisitType.length === 0 && selectedScreening.length === 0 && selectedProviders.length === 0) {
+    if (selectedVisitType.length === 0 && selectedScreening.length === 0 && selectedProviders.length === 0 && selectedStatus === null) {
       return true;
     } return false;
   }
@@ -123,13 +135,17 @@ function FilterButton(props: any) {
   };
 
   const applyFilters = () => {
+
+    let status =  selectedStatus === "Active"? true : false;
+
     const filtersData = {
       ...filters,
       visit_types: selectedVisitType,
       providers_uuids: selectedProviders,
       screening: selectedScreening,
       page: 1,
-      page_size: 10
+      page_size: 10,
+      show_cancelled_appointments : status
     };
     setMainLoader(true);
     setIsFilterApplied(true);
@@ -189,11 +205,14 @@ function FilterButton(props: any) {
   }
 
   const updateFilters = () => {
+    let status =  selectedStatus === "Active"? true : false;
+
     const payload = {
 
       visit_type: selectedVisitType,
       screening: selectedScreening,
-      provider: selectedProviders
+      provider: selectedProviders,
+      show_cancelled_appointments : status
     };
     dispatch(updateAppointmentFilter({ action: payload, uuid: selectedFilterDetail?.uuid })).then((e) => {
       if (e?.payload) {
@@ -253,17 +272,6 @@ function FilterButton(props: any) {
     getFilterDetail(list)
   }
 
-  const statusKeys = [{
-    "uuid": "1",
-    "name": "Open"
-  }, {
-    "uuid": "2",
-    "name": "In Progress"
-  }, {
-    "uuid": "3",
-    "name": "Completed"
-  }];
-
   return (
     <>
       <Box
@@ -297,7 +305,7 @@ function FilterButton(props: any) {
                 >
                   <BoxFilterLeft>Filter by</BoxFilterLeft>
                   <BoxFilterRight>
-                    {!isSavedFilterSettingClicked ? <>
+                    {(!isSavedFilterSettingClicked) ? <>
                       <BoxFilterRightMid sx={{ cursor: "pointer" }} onClick={() => applyFilters()} disabled={isEmptyFilter()}>Apply</BoxFilterRightMid>
                       {!isEmptyFilter() && <BoxFilterRightMid sx={{ color: "#5C6469", cursor: "pointer" }} onClick={() => createFilterModal()}>
                         Create Filter
@@ -418,15 +426,15 @@ function FilterButton(props: any) {
                           <TableCellHd>
                             Status
                           </TableCellHd>
-                          {statusKeys?.map((pro: any, index: number) => (
+
+                          {statusKeys.map((pro: any, index: number) => (
                             <TableCellTd key={index}>
                               <label>
                                 <CheckboxInner
                                   key={index}
                                   sx={{ "& .MuiSvgIcon-root": { fontSize: 16 } }}
-                                  {...label}
-                                  onClick={() => handleProvidersFilterClick(pro)}
-                                  checked={selectedProviders?.includes(pro.uuid) || false}
+                                  onClick={() => handleStatusSelection(pro)}
+                                  checked={selectedStatus === pro.name}
                                 />
                                 {pro.name}
                               </label>

@@ -43,7 +43,7 @@ import {
 } from '../../styles/customStyle';
 
 import { AppointmentState, FiltersDataState, emptyAppointmentList, emptySelectedFilter, updateFilter } from '@/app/redux/slices/appointment';
-import { Box, Container, Input, InputAdornment, CircularProgress, Typography, FormControlLabel, Checkbox, FormGroup, Button, TableCell } from '@mui/material';
+import { Box, Container, Input, InputAdornment, CircularProgress, Typography, FormControlLabel, Checkbox, FormGroup, Button, TableCell, Skeleton } from '@mui/material';
 import PatientNotFound from '@/app/components/patientNotFound';
 import { API_URL } from '@/app/redux/config/axiosInstance';
 import { formatDates, parseDate, urlParams } from '@/app/utils/helper';
@@ -56,6 +56,7 @@ import { clearDB } from '@/app/utils/indexeddb';
 import { UncheckedIcon, CheckedIcon } from "../../images/check"
 import { max } from 'date-fns';
 import { FaCheckCircle } from 'react-icons/fa';  // for success icon
+import Shimmer from '@/app/components/shimmerEffect';
 
 const Row = dynamic(() => import('@/app/components/tableRow/index').then((mod) => mod), {
   ssr: false,
@@ -82,6 +83,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   const dispatch = useDispatch<AppDispatch>();
   const appointmentsList = useSelector((state: AppState) => state.appointment?.appointmentsData?.results) || [];
   const appointmentDetail = useSelector((state: AppState) => state.appointment?.appointmentDetail) || [];
+  const appointmentDetailMulti = useSelector((state: AppState) => state.appointment?.appointmentDetailMulti) || [];
+
   const isNextAppointmentsList = useSelector((state: AppState) => state.appointment?.appointmentsData?.next);
   const isDetailLoading = useSelector((state: AppState) => state.appointment.isDetailLoading);
   const appointmentFiltersData = useSelector((state: AppState) => state.appointment.appointmentFiltersData);
@@ -118,6 +121,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     data: "",
     detail: {}
   })
+  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
 
   const [idleTimeEnv, setIdleTimeEnv] = useState(15);
   const [completedActions, setCompletedActions] = useState(false);
@@ -149,6 +153,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   const { ref, inView } = useInView();
   const [windowHeight, setWindowHeight] = useState(0);
   const [idleTime, setIdleTime] = useState(0);
+  const [valueNum, setValueNum] = useState(0)
 
   const removeObjectById = (arr: any, id: any) => {
     const index = arr.findIndex((item: any) => item.id === id);
@@ -242,13 +247,17 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     }
   }, [idleTime]);
 
+  const [getMoreAppointment, setGetMoreAppointment] = useState(0)
   // Load More Appointment
 
   const loadMoreAppointment = (filter: FiltersDataState, auditState?: any) => {
+
     dispatch(getAppointmentsList(filter)).then((response: any) => {
+      setGetMoreAppointment(response.payload.count);
       setMainLoader(false);
       dispatch(updateFilter({ page: filter && filter.page ? filter.page + 1 : page }));
       if (response?.payload?.results.length === 0) {
+
         setIsClearFilter(true);
       } else {
         setIsClearFilter(false);
@@ -384,10 +393,10 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     }
 
     dispatch(updateAppointmentDetail(payload)).then((res) => {
-      
+
       (res?.payload?.request_data?.accept || res?.payload?.request_data?.reject) ? toast.success(
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent:"space-between" }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: "space-between" }}>
             <FaCheckCircle style={{ color: '#2ECC71', marginRight: '10px' }} />
             Action updated successfully
           </div>
@@ -413,7 +422,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       ) : toast.success(
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <FaCheckCircle style={{ color: '#2ECC71', marginRight: '10px' , justifyContent:"space-between" }} />
+            <FaCheckCircle style={{ color: '#2ECC71', marginRight: '10px', justifyContent: "space-between" }} />
             Action reverted successfully
           </div>
           <IoMdClose style={{ color: '#000000', cursor: 'pointer' }} onClick={() => toast.dismiss()} />
@@ -435,7 +444,11 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       );
       appointmentDetails(appointment_id);
       handleAddEventData("FRONTEND_TILE_CLICK_ACTION", `FRONTEND_TILE_CLICK_ACTION${value}`, `FRONTEND_TILE_CLICK_ACTION${value}`)
-      dispatch(getAppointmentDetailMulti({ appointment_id: res?.meta?.arg?.appointment_id }))
+      dispatch(getAppointmentDetail({ appointment_id: res?.meta?.arg?.appointment_id })).then((res: any) => {
+        dispatch(getAppointmentDetailMulti({ appointment_id: res?.meta?.arg?.appointment_id })).then((res) => {
+        })
+        dispatch(getAppointmentsList(filters));
+      })
       const formattedDates = formatDates(filters.appointment_start_date, filters.appointment_end_date);
       const payload = {
         page: 1,
@@ -444,6 +457,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         appointment_end_date: formattedDates.end,
       };
       dispatch(getAllAppointments(payload));
+
     }).catch(() => {
       ;
       handleAddEventData("FRONTEND_TILE_CLICK_ACTION", `FRONTEND_TILE_CLICK_ACTION${value}`, `FRONTEND_TILE_CLICK_ACTION${value}`)
@@ -496,6 +510,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     dispatch(getSelectedFilterList());
   }
 
+
+
   const resetFilters = (isFilterPopOpen: boolean = false) => {
     const formattedDates = formatDates(date, date);
     const timezone: string = "US/Pacific";
@@ -511,11 +527,13 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       appointment_start_date: formattedDates.start,
       appointment_end_date: formattedDates.end,
       timezone: timezone,
+      show_cancelled_appointments: false,
     };
     setMainLoader(true);
     setSelectedVisitType([]);
     setSelectedScreening([]);
     setSelectedProviders([]);
+    setSelectedStatus(null);
     dispatch(updateFilter(filtersData));
     dispatch(emptyAppointmentList());
     loadMoreAppointment(filtersData, "FRONTEND_FILTER_CLICK_FILTER_RESET");
@@ -534,7 +552,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   }
 
   useEffect(() => {
-    if (selectedVisitType.length === 0 && selectedProviders.length === 0 && selectedScreening.length === 0) {
+    if (selectedVisitType.length === 0 && selectedProviders.length === 0 && selectedScreening.length === 0 && selectedStatus === null) {
       const formattedDates = formatDates(date, date);
       const timezone: string = "US/Pacific";
 
@@ -548,6 +566,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         appointment_start_date: formattedDates.start,
         appointment_end_date: formattedDates.end,
         timezone: timezone,
+        show_cancelled_appointments: false,
 
       };
 
@@ -556,7 +575,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       dispatch(emptyAppointmentList());
       setSelectedSavedFilterUuid('');
     }
-  }, [selectedVisitType, selectedProviders, selectedScreening])
+  }, [selectedVisitType, selectedProviders, selectedScreening, selectedStatus])
 
   const searchAppointmentPatientName = (e: any) => {
     setPatientNameSearch(e.target.value);
@@ -712,23 +731,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     dateRangeHandleChange(selectedDate);
   }
 
-  // Create a ref for the first element
-  const firstElementRef = useRef<any>(null);
-
-  const expandedValues = (value: boolean) => {
-    setExpand(value);
-    if (firstElementRef.current) {
-      firstElementRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    }
-  }
-
-  useEffect(() => {
-  }, [appointmentsList]);
-
-
   // ****************************************** Show and hide appointments
 
   const handleCompletedActionsChange = (event: any) => {
@@ -763,6 +765,49 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     dispatch(emptyAppointmentList());
     loadMoreAppointment(filtersData);
   };
+
+
+  // expand functionality
+
+  let dispatchedUUIDs: any = [];
+
+  const firstElementRef = useRef<any>(null);
+  const expandedValues = (value: boolean) => {
+    setLoaderAppoint(true);
+    setExpand(value);
+
+    if (value === true) {
+      for (let i = 0; i < appointmentsList.length; i++) {
+        const appointmentUUID = appointmentsList[i]?.uuid;
+
+        if (appointmentUUID && !dispatchedUUIDs.includes(appointmentUUID)) {
+          dispatch(getAppointmentDetailMulti({ appointment_id: appointmentUUID })).then((res) => {
+            setLoaderAppoint(false);
+          });
+          dispatchedUUIDs.push(appointmentUUID); // Add to dispatched list
+        } else {
+        }
+      }
+
+    }
+    setValueNum(valueNum + 1);
+
+    // if (firstElementRef.current) {
+    //   firstElementRef.current.scrollIntoView({
+    //     behavior: 'smooth',
+    //     block: 'start',
+    //   });
+    // }
+  }
+
+  useEffect(() => {
+    if (inView) {
+      expandedValues(expand);
+    }
+  }, [inView])
+
+
+  const columns = ["Appt Time", "Patient Name", "Type of Visit", "Clinician", "Screening", "Action"];
 
   return (
     <>
@@ -833,6 +878,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
             <Box sx={{ display: 'flex' }}>
               <FilterMenu>
                 <FilterButton
+                  selectedStatus={selectedStatus}
+                  setSelectedStatus={setSelectedStatus}
                   handleAddEventData={handleAddEventData}
                   getAppointmentFiltersData={getAppointmentFiltersData}
                   appointmentFiltersData={appointmentFiltersData}
@@ -923,10 +970,10 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
             </HideShow>
 
             <ExpendSection>
-              {/* <Typography component={'p'}>Expand:</Typography>
+              <Typography component={'p'}>Expand:</Typography>
               <Button onClick={() => expandedValues(true)}>All</Button>
               <Typography component={'span'} sx={{ color: '#172B4D' }}>|</Typography>
-              <Button onClick={() => expandedValues(false)}>None</Button> */}
+              <Button onClick={() => expandedValues(false)}>None</Button>
             </ExpendSection>
           </TableTopMain>
 
@@ -967,7 +1014,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
                           </LoaderBox>
                         </TableMidData>
                       </TableRow>
-                      : <PatientNotFound searchTerm = {patientNameSearch} icon={isFilterApplied} resetFilters={resetFilters} />
+                      : <PatientNotFound searchTerm={patientNameSearch} icon={isFilterApplied} resetFilters={resetFilters} />
                   }
                 </TableBody>
               </Table>
@@ -994,65 +1041,100 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
                     <StyledTableCell>Type of Visit</StyledTableCell>
                     <StyledTableCell>Clinician</StyledTableCell>
                     <StyledTableCell>Screening</StyledTableCell>
-
                     <StyledTableCell>Action</StyledTableCell>
                   </TableRow>
                 </Table_Head>
                 {
-                  mainLoader ? <TableBody>
-                    <TableRow>
-                      <TableMidData style={{ border: "none", backgroundColor: "white" }} colSpan={12} >
-                        <LoaderBox sx={{ width: "100%", margin: "0px", height: windowHeight - 400, justifyContent: "center" }}>
-                          <CircularProgress />
-                          Loading Appointments
-                        </LoaderBox>
-                      </TableMidData>
-                    </TableRow>
-                  </TableBody> : <TableBody  >
-                    {appointmentsList.map(
-                      (appointment: AppointmentState, index: number) => (
-                        <>
+                  mainLoader ?
+                    <Shimmer />
 
-                          <TableRow >
-                            <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                            <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                            <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                            <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                            <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                            <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                          </TableRow>
-                          <Row
+                    : <TableBody>
+                      {appointmentsList.map(
+                        (appointment: AppointmentState, index: number) => (
+                          <>
 
-                            newbuttonState={newbuttonState}
-                            appointmentsList={appointmentsList}
-                            firstElementRef={firstElementRef}
-                            id={appointmentsList[0]?.uuid}
-                            expand={index < 10 ? expand : false}
-                            setExpand={setExpand}
-                            key={index}
-                            appointment={appointment}
-                            selectedAppointmentUuid={selectedAppointmentUuid}
-                            setSelectedAppointmentUuid={setSelectedAppointmentUuid}
-                            appointmentDetail={appointmentDetail}
-                            appointmentDetails={appointmentDetails}
-                            updateOutCome={updateOutCome}
-                            isDetailLoading={isDetailLoading}
-                            setLoaderAppoint={setLoaderAppoint}
-                            loaderAppoint={loaderAppoint}
-                            updateButtonState={updateButtonState}
-                            confirmationModal={confirmationModal}
-                            reverseModal={reverseModal}
-                            setConfirmationModal={setConfirmationModal}
-                            setReverseModal={setReverseModal}
-                            actionValue={actionValue}
-                            setSelectedAppointmentGap={setSelectedAppointmentGap}
-                            selectedAppointmentGap={selectedAppointmentGap}
-                          />
+                            <TableRow >
+                              <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
+                              <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
+                              <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
+                              <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
+                              <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
+                              <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
+                            </TableRow>
+                            <Row
 
-                        </>
-                      )
-                    )}
-                  </TableBody>
+                              newbuttonState={newbuttonState}
+                              appointmentsList={appointmentsList}
+                              firstElementRef={firstElementRef}
+                              id={appointmentsList[0]?.uuid}
+                              expand={index < (valueNum * 10) ? expand : false}
+                              setExpand={setExpand}
+                              key={index}
+                              appointment={appointment}
+                              selectedAppointmentUuid={selectedAppointmentUuid}
+                              setSelectedAppointmentUuid={setSelectedAppointmentUuid}
+                              appointmentDetail={appointmentDetail}
+                              appointmentDetailMulti={appointmentDetailMulti}
+                              appointmentDetails={appointmentDetails}
+                              updateOutCome={updateOutCome}
+                              isDetailLoading={isDetailLoading}
+                              setLoaderAppoint={setLoaderAppoint}
+                              loaderAppoint={loaderAppoint}
+                              updateButtonState={updateButtonState}
+                              confirmationModal={confirmationModal}
+                              reverseModal={reverseModal}
+                              setConfirmationModal={setConfirmationModal}
+                              setReverseModal={setReverseModal}
+                              actionValue={actionValue}
+                              setSelectedAppointmentGap={setSelectedAppointmentGap}
+                              selectedAppointmentGap={selectedAppointmentGap}
+                            />
+
+                          </>
+                        )
+                      )}
+                      {
+                        (appointmentsList.length < getMoreAppointment) ? 
+                    
+                      <>
+                        <TableRow >
+                          <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
+                          <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
+                          <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
+                          <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
+                          <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
+                          <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
+                        </TableRow>
+
+                        <TableRow sx={{ backgroundColor: "white", mb: 2 }}>
+                          {columns.map((_, cellIndex) => (
+                            <TableCell
+                              key={cellIndex}
+                              style={{
+
+                                backgroundColor: 'white',
+                                border: 'none',
+                                textAlign: 'center' // Center align the shimmer
+                              }}
+                            >
+                              <Skeleton
+                                variant="rectangular"
+                                animation="wave"
+                                height={28}
+                                width="90%"
+                                style={{
+                                  borderRadius: 1, margin: 2,
+                                  background: 'linear-gradient(90deg, #F0EBEB 0%, #E2E2E2 29.61%, #EBEBEB 62.23%, #F7F7F7 100%)',
+                                  animation: 'shimmer 1.5s infinite ease-in-out'
+                                }} // Center within the cell
+                              />
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                        </> : null
+                          }
+                      </TableBody>
+                    
                 }
               </Table>
               <div><h6 ref={ref} style={{ textAlign: "center", visibility: "hidden", height: "1px" }} ></h6></div>

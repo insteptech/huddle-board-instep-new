@@ -1,4 +1,5 @@
 export const getOutComeBtnState = (detail: any, key: any) => {
+
     let buttonState = "enable";
     const {
         accept,

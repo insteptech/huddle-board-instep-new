@@ -41,8 +41,6 @@ import {
 
 import { getOutComeBtnState } from '@/app/utils/appointment';
 import { getTime } from '@/app/utils/helper';
-import ActionConfirmation from '../actionConfirmationModal';
-import ActionReverse from '../actionReverseModal';
 import { AppDispatch, AppState } from '@/app/redux/store';
 import { getAppointmentDetailMulti } from '@/app/redux/actions/appointment';
 import { useDispatch, useSelector } from 'react-redux';
@@ -72,46 +70,41 @@ function GetScreening({ screening }: { screening: string[] }) {
 
 
 const Row = (props: any) => {
-    const { appointment, appointmentsList, newbuttonState, selectedAppointmentUuid, firstElementRef, id, expand, selectedAppointmentGap, setExpand, setSelectedAppointmentGap, loaderAppoint, setSelectedAppointmentUuid, reverseModal, updateButtonState, setReverseModal, setLoaderAppoint, appointmentDetails, appointmentDetail, updateOutCome, isDetailLoading, confirmationModal, setConfirmationModal, actionValue } = props;
+    const { appointment,appointmentDetailMulti, appointmentsList, newbuttonState, selectedAppointmentUuid, firstElementRef, id, expand, selectedAppointmentGap, setExpand, setSelectedAppointmentGap, loaderAppoint, setSelectedAppointmentUuid, reverseModal, updateButtonState, setReverseModal, setLoaderAppoint, appointmentDetails, appointmentDetail, updateOutCome, isDetailLoading, confirmationModal, setConfirmationModal, actionValue } = props;
     const [open, setOpen] = useState(false);
     const [isCopied, setIsCopied] = useState(false);
     const dispatch = useDispatch<AppDispatch>();
-    const appointmentDetailMulti = useSelector((state: AppState) => state.appointment?.appointmentDetailMulti) || [];
-    const [copyMrnRow , setCopyMrnRow] = useState(false);
-    // useEffect(() => {
-    //     if (expand === true) {
-    //         setOpen(false)
-    //     }
-    // }, [])
+    const [copyMrnRow, setCopyMrnRow] = useState(false);
 
     useEffect(() => {
-        if (expand === true) {
-            for (let i = 0; i < appointmentsList.length; i++) {
-                dispatch(getAppointmentDetailMulti({ appointment_id: appointmentsList[i]?.uuid }))
-            }
-        }
+     
+
     }, [expand, appointmentDetailMulti])
 
-    const copyMrn = (mrn: any, event:any) => {
+    const copyMrn = (mrn: any, event: any) => {
         event.stopPropagation();
-        setRow(null , 0)
+        setRow(null, 0)
         navigator.clipboard.writeText(mrn);
         setIsCopied(true);
-        
+
     }
 
     const setRow = (id: any, gap?: number) => {
-        if(id === null && gap === 0){
+        if (id === null && gap === 0) {
             return
         }
-         
         setLoaderAppoint(true);
         setSelectedAppointmentUuid(id);
         appointmentDetails(id);
         setSelectedAppointmentGap(gap);
         setOpen(!open);
         setExpand(false)
+    };
 
+
+    const handleClick = (actionType:any, detail:any) => {
+        const currentState = getOutComeBtnState(detail, actionType);
+        updateButtonState(actionType, currentState, detail); // Pass only the uuid
     };
 
     const renderCellContent = (content: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | Promise<React.AwaitedReactNode> | null | undefined, isBold: boolean) => (
@@ -151,7 +144,7 @@ const Row = (props: any) => {
                             MRN: {appointment.mrn}
                             <Tooltip title={isCopied ? "Copied" : "Copy"} placement="top">
                                 <ContentCopyIcon
-                                    onClick={(event) => copyMrn(appointment.mrn , event)}
+                                    onClick={(event) => copyMrn(appointment.mrn, event)}
                                     sx={{ verticalAlign: 'middle', color: '#17236D', fontSize: '15px', marginLeft: '5px' }}
                                 />
                             </Tooltip>
@@ -221,7 +214,8 @@ const Row = (props: any) => {
                     <Collapse in={(open && selectedAppointmentUuid === appointment.uuid || expand)} timeout="auto" unmountOnExit>
                         <Box>
                             {
-                                appointment.gap_count === 0 ? <Table>
+                                appointment.gap_count === 0 ? 
+                                <Table>
 
                                 </Table>
                                     :
@@ -255,19 +249,58 @@ const Row = (props: any) => {
                                                                 <TableMidData><SpanText>{detail.screening}</SpanText></TableMidData>
                                                                 <TableMidData sx={{ width: "20%" }}><ActionBtn>{detail.action}</ActionBtn></TableMidData>
                                                                 <TableMidData ><Text><Tooltip title={detail.description} placement="top">{detail.description}</Tooltip></Text></TableMidData>
+
                                                                 <TableMidData sx={{ width: '180px' }}>
                                                                     <TableMidIn>
-                                                                        <StyledMuiButton buttonstate={getOutComeBtnState(detail, 'accept')} onClick={() => updateButtonState('accept', getOutComeBtnState(detail, 'accept'), detail)}>
-                                                                            {getOutComeBtnState(detail, 'accept') === "enable" ? "Accept" : "Accepted"}
-                                                                        </StyledMuiButton>
-                                                                        <StyledMuiButton buttonstate={getOutComeBtnState(detail, 'reject')} onClick={() => updateButtonState('reject', getOutComeBtnState(detail, 'reject'), detail)}>
-                                                                            {getOutComeBtnState(detail, 'reject') === "enable" ? "Reject" : "Rejected"}
-                                                                        </StyledMuiButton>
-                                                                        {/* {detail.show_test_ordered ? <StyledMuiButton buttonstate={getOutComeBtnState(detail, 'test_ordered')} onClick={() => updateButtonState('test_ordered', getOutComeBtnState(detail, 'test_ordered'), detail)}>
-                                                                        Test Ordered
-                                                                    </StyledMuiButton> :
-                                                                        <TestButton><Tooltip title="This screening does not have test required" placement="top"><InfoOutlinedIcon sx={{ marginRight: '3px', width: '20px' }} /></Tooltip>Test Not Needed</TestButton>
-                                                                    } */}
+                                                                        <BootstrapTooltip PopperProps={{
+                                                                            modifiers: [
+                                                                                {
+                                                                                    name: 'flip',
+                                                                                    enabled: true,
+                                                                                    options: {
+                                                                                        altBoundary: true,
+                                                                                        rootBoundary: 'viewport',
+                                                                                        padding: 8,
+                                                                                    },
+                                                                                },
+                                                                                {
+                                                                                    name: 'preventOverflow',
+                                                                                    enabled: true,
+                                                                                    options: {
+                                                                                        altAxis: true,
+                                                                                        tether: true,
+                                                                                        rootBoundary: 'viewport',
+                                                                                        padding: 8,
+                                                                                    },
+                                                                                },
+                                                                            ],
+                                                                        }} placement="top-start"
+                                                                            title={(getOutComeBtnState(detail, 'accept') === "active") ? "You can reverse you action by clicking on same button again." : ""}
+                                                                            arrow
+
+                                                                        >
+                                                                            <StyledMuiButton
+                                                                                buttonstate={getOutComeBtnState(detail, 'accept')}
+                                                                                onClick={() => handleClick('accept', detail)}
+                                                                            >
+
+                                                                                {(getOutComeBtnState(detail, 'accept') === "enable" || getOutComeBtnState(detail, 'reject') === "active") ? "Accept" : "Accepted"}
+                                                                            </StyledMuiButton>
+                                                                        </BootstrapTooltip>
+
+                                                                        <BootstrapTooltip placement='top-start'
+                                                                            title={(getOutComeBtnState(detail, 'reject') === "active") ? "You can reverse you action by clicking on same button again." : ""}
+                                                                            arrow
+                                                                        // Tooltip background color
+                                                                        >
+                                                                            <StyledMuiButton
+                                                                                buttonstate={getOutComeBtnState(detail, 'reject')}
+                                                                                onClick={() => handleClick('reject', detail)}
+
+                                                                            >
+                                                                                {(getOutComeBtnState(detail, 'reject') === "enable" || getOutComeBtnState(detail, 'accept') === "active") ? "Reject" : "Rejected"}
+                                                                            </StyledMuiButton>
+                                                                        </BootstrapTooltip>
 
                                                                     </TableMidIn>
                                                                 </TableMidData>
