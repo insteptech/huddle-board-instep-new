@@ -121,7 +121,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     data: "",
     detail: {}
   })
-  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<string | null>("Not Cancelled");
 
   const [idleTimeEnv, setIdleTimeEnv] = useState(15);
   const [completedActions, setCompletedActions] = useState(false);
@@ -871,7 +871,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         <TableDiv sx={{
           height: {
             xs: "auto", // For extra-small devices, make the height auto
-            sm: "80vh" // For small and above, cover the full viewport height
+            sm: !isPatientNotFound ?'auto':"80vh" // For small and above, cover the full viewport height
           }
         }}>
           <TableTopMain>
@@ -979,7 +979,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
 
 
           {(isPatientNotFound || isClearFilter) && (
-            <TableOtherContainer sx={{ m: "10px 0 0 0", height: windowHeight - 300 }}>
+            <TableOtherContainer sx={{ m: "10px 0 0 0", height: !isPatientNotFound ? 'auto': windowHeight - 300}}>
               <Table sx={{ height: "100%" }} aria-label="collapsible table">
                 <Table_Head sx={{ backgroundColor: "#17236D", color: "#fff" }}>
                   <TableRow>

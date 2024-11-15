@@ -38,7 +38,7 @@ import { toast } from 'react-toastify';
 import DeleteFilterModal from '../deleteFilterModal';
 
 function FilterButton(props: any) {
-  const { getAppointmentFiltersData,selectedStatus, setSelectedStatus, handleAddEventData, isFilterApplied, appointmentFiltersData, setMainLoader, isFilterDataLoading, loadMoreAppointment, filters, selectedFilterList, setSelectedVisitType, setSelectedScreening, setSelectedProviders, setAnchorEl, anchorEl, selectedVisitType, selectedScreening, selectedProviders, resetFilters, getFilterDetail, selectedSavedFilterUuid, setIsFilterApplied } = props;
+  const { getAppointmentFiltersData, selectedStatus, setSelectedStatus, handleAddEventData, isFilterApplied, appointmentFiltersData, setMainLoader, isFilterDataLoading, loadMoreAppointment, filters, selectedFilterList, setSelectedVisitType, setSelectedScreening, setSelectedProviders, setAnchorEl, anchorEl, selectedVisitType, selectedScreening, selectedProviders, resetFilters, getFilterDetail, selectedSavedFilterUuid, setIsFilterApplied } = props;
   const { patient_screening, provider, visit_type } = appointmentFiltersData || {};
 
   const label = { inputProps: { "aria-label": "Checkbox demo" } };
@@ -54,11 +54,11 @@ function FilterButton(props: any) {
   const selectedFilterDetail = useSelector((state: AppState) => state.appointment.selectedFilterDetail);
   const [filterName, setFilterName] = React.useState(isEditModalOpen ? selectedFilterDetail?.name : " ");
 
-  
+
 
   const statusKeys = [
-    { name: "Active" },
-    { name: "Inactive" }
+    { name: "Cancelled" },
+    { name: "Not Cancelled" }
   ];
 
   const handleStatusSelection = (pro: { name: string }) => {
@@ -136,7 +136,7 @@ function FilterButton(props: any) {
 
   const applyFilters = () => {
 
-    let status =  selectedStatus === "Active"? true : false;
+    let status = selectedStatus === "Cancelled" ? true : false;
 
     const filtersData = {
       ...filters,
@@ -145,7 +145,7 @@ function FilterButton(props: any) {
       screening: selectedScreening,
       page: 1,
       page_size: 10,
-      show_cancelled_appointments : status
+      show_cancelled_appointments: status
     };
     setMainLoader(true);
     setIsFilterApplied(true);
@@ -205,14 +205,14 @@ function FilterButton(props: any) {
   }
 
   const updateFilters = () => {
-    let status =  selectedStatus === "Active"? true : false;
+    let status = selectedStatus === "Cancelled" ? true : false;
 
     const payload = {
 
       visit_type: selectedVisitType,
       screening: selectedScreening,
       provider: selectedProviders,
-      show_cancelled_appointments : status
+      show_cancelled_appointments: status
     };
     dispatch(updateAppointmentFilter({ action: payload, uuid: selectedFilterDetail?.uuid })).then((e) => {
       if (e?.payload) {
@@ -424,15 +424,15 @@ function FilterButton(props: any) {
 
                         <TableDataList>
                           <TableCellHd>
-                            Status
+                            Appointment Status
                           </TableCellHd>
 
                           {statusKeys.map((pro: any, index: number) => (
-                            <TableCellTd key={index}>
+                            <TableCellTd sx={{padding:"0 !important" }} key={index}>
                               <label>
-                                <CheckboxInner
+                                <Radio
                                   key={index}
-                                  sx={{ "& .MuiSvgIcon-root": { fontSize: 16 } }}
+                                  sx={{ "& .MuiSvgIcon-root": { fontSize: 16 , } }}
                                   onClick={() => handleStatusSelection(pro)}
                                   checked={selectedStatus === pro.name}
                                 />
