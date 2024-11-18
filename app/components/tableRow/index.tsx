@@ -151,36 +151,39 @@ const Row = (props: any) => {
                         </StyledCopy>
                     </StyledName>
                 </TdTableCell>
+                
                 <TdTableCell>{renderCellContent(appointment.visit_type, appointment.selected_gap_count === 0)}</TdTableCell>
                 <TdTableCell>{renderCellContent(appointment.provider, appointment.selected_gap_count === 0)}</TdTableCell>
                 <TdTableCell><GetScreening screening={appointment.screening.length > 0 ? appointment.screening : ["No Screening Data Available"]} /></TdTableCell>
 
                 <TdTableCell>
                     {
-                        appointment.selected_gap_count === 0 ?
-                            <IconProgress>
-                                <Stack spacing={2} sx={{ flexGrow: 1 }}>
-                                    <BorderLinearProgress sx={{ minWidth: "40px", maxWidth: "80px" }} variant="determinate" value={0} />
-                                </Stack>
-                                <ProviderCell>{`${appointment.selected_gap_count}/${appointment.gap_count}`}</ProviderCell>
-                                <IconButton aria-label="expand appointment" size="small" onClick={() => setRow(appointment.uuid)}>
-                                    {(open && selectedAppointmentUuid === appointment.uuid || expand) ? <><Tooltip title="Collapse" placement="top"><KeyboardArrowUpIcon sx={{
-                                        color: 'black',
-                                        border: '1px solid black',
-                                        height: '16px',
-                                        width: '16px',
-                                        marginLeft: '20px',
-                                        borderRadius: '50%'
-                                    }} /></Tooltip></> : <><Tooltip title="Expand" placement="top"><KeyboardArrowDownIcon sx={{
-                                        color: 'black',
-                                        border: '1px solid black',
-                                        height: '16px',
-                                        width: '16px',
-                                        marginLeft: '20px',
-                                        borderRadius: '50%'
-                                    }} /></Tooltip></>}
-                                </IconButton>
-                            </IconProgress>
+                        appointment.gap_count === 0 ?
+                            // <IconProgress>
+                            //     <Stack spacing={2} sx={{ flexGrow: 1 }}>
+                            //         <BorderLinearProgress sx={{ minWidth: "40px", maxWidth: "80px" }} variant="determinate" value={0} />
+                            //     </Stack>
+                            //     <ProviderCell>{`${appointment.selected_gap_count}/${appointment.gap_count}`}</ProviderCell>
+                            //     <IconButton aria-label="expand appointment" size="small" onClick={() => setRow(appointment.uuid)}>
+                            //         {(open && selectedAppointmentUuid === appointment.uuid || expand) ? <><Tooltip title="Collapse" placement="top"><KeyboardArrowUpIcon sx={{
+                            //             color: 'black',
+                            //             border: '1px solid black',
+                            //             height: '16px',
+                            //             width: '16px',
+                            //             marginLeft: '20px',
+                            //             borderRadius: '50%'
+                            //         }} /></Tooltip></> : <><Tooltip title="Expand" placement="top"><KeyboardArrowDownIcon sx={{
+                            //             color: 'black',
+                            //             border: '1px solid black',
+                            //             height: '16px',
+                            //             width: '16px',
+                            //             marginLeft: '20px',
+                            //             borderRadius: '50%'
+                            //         }} /></Tooltip></>}
+                            //     </IconButton>
+                            // </IconProgress>
+
+                            null
                             :
                             <IconProgress>
                                 <Stack spacing={2} sx={{ flexGrow: 1 }}>
