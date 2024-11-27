@@ -238,8 +238,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     }
   }
 
-
-
   useEffect(() => {
 
     if (idleTime >= idleTimeEnv) {
@@ -492,9 +490,17 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     };
     const url = `${API_URL}download-appointments/?${urlParams(appliedFilters)}`;
     fetch(url, { method: 'get', headers: { "Authorization": `JWT ${accessToken()}` } })
-      .then(res => res.blob())
+    .then(res => {
+      if (!res.ok) { // Checks if status is not in the range 200-299
+        toast.error("Failed to download the PDF. Please try again.");
+
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      return res.blob(); // Only proceed if the response is ok
+    })
       .then(res => {
         const aElement = document.createElement('a');
+        toast.success("Your PDF has been successfully downloaded.");
         aElement.setAttribute('download', "appointments.pdf");
         const href = URL.createObjectURL(res);
         aElement.href = href;
@@ -510,6 +516,9 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     dispatch(getSelectedFilterList());
   }
 
+  const setStatus = ()=>{
+    setSelectedStatus("Not Cancelled");
+  }
 
 
   const resetFilters = (isFilterPopOpen: boolean = false) => {
@@ -529,6 +538,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       timezone: timezone,
       show_cancelled_appointments: false,
     };
+    setStatus();
     setMainLoader(true);
     setSelectedVisitType([]);
     setSelectedScreening([]);

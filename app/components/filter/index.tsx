@@ -63,6 +63,7 @@ function FilterButton(props: any) {
 
   const handleStatusSelection = (pro: { name: string }) => {
     setSelectedStatus(pro.name);
+    console.log(pro , "dvfhsdgdg")
   };
 
 
@@ -434,7 +435,10 @@ function FilterButton(props: any) {
                                   key={index}
                                   sx={{ "& .MuiSvgIcon-root": { fontSize: 16 , } }}
                                   onClick={() => handleStatusSelection(pro)}
-                                  checked={selectedStatus === pro.name}
+                                  checked={
+                                    selectedStatus === pro.name || 
+                                    (selectedStatus == null && pro.name === "Not Cancelled")
+                                  }
                                 />
                                 {pro.name}
                               </label>
