@@ -493,8 +493,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     .then(res => {
       if (!res.ok) { // Checks if status is not in the range 200-299
         toast.error("Failed to download the PDF. Please try again.");
-
-        throw new Error(`HTTP error! status: ${res.status}`);
       }
       return res.blob(); // Only proceed if the response is ok
     })
