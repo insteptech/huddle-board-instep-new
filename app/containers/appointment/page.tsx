@@ -479,37 +479,49 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   // }
 
   const handlePdf = () => {
-
-    const timezone: string = "US/Pacific";
-
+    const timezone = "US/Pacific";
+  
     const appliedFilters = {
       ...filters,
       file_type: 'pdf',
       timezone: timezone,
       page: 1,
     };
+  
     const url = `${API_URL}download-appointments/?${urlParams(appliedFilters)}`;
-    fetch(url, { method: 'get', headers: { "Authorization": `JWT ${accessToken()}` } })
-    .then(res => {
-      if (!res.ok) { // Checks if status is not in the range 200-299
-        toast.error("Failed to download the PDF. Please try again.");
-
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      return res.blob(); // Only proceed if the response is ok
+  
+    fetch(url, {
+      method: 'get',
+      headers: { "Authorization": `JWT ${accessToken()}` },
     })
       .then(res => {
+        if (!res.ok) { 
+          toast.error("Failed to download the PDF. Please try again.");
+          throw new Error(`HTTP error! status: ${res.status}`); 
+        }
+        return res.blob(); 
+      })
+      .then(blob => {
         const aElement = document.createElement('a');
         toast.success("Your PDF has been successfully downloaded.");
         aElement.setAttribute('download', "appointments.pdf");
-        const href = URL.createObjectURL(res);
+        const href = URL.createObjectURL(blob);
         aElement.href = href;
         aElement.setAttribute('target', '_blank');
         aElement.click();
         URL.revokeObjectURL(href);
-        handleAddEventData("FRONTEND_PRINT_CLICK", "Frontend Print Document Successful", "Frontend Print Document Successful")
+  
+        handleAddEventData(
+          "FRONTEND_PRINT_CLICK",
+          "Frontend Print Document Successful",
+          "Frontend Print Document Successful"
+        );
+      })
+      .catch(err => {
+        console.error("Error during PDF download:", err);
       });
   };
+  
 
   const getAppointmentFiltersData = () => {
     dispatch(getFiltersData());
