@@ -38,7 +38,7 @@ import { toast } from 'react-toastify';
 import DeleteFilterModal from '../deleteFilterModal';
 
 function FilterButton(props: any) {
-  const { getAppointmentFiltersData, selectedStatus, setSelectedStatus, handleAddEventData, isFilterApplied, appointmentFiltersData, setMainLoader, isFilterDataLoading, loadMoreAppointment, filters, selectedFilterList, setSelectedVisitType, setSelectedScreening, setSelectedProviders, setAnchorEl, anchorEl, selectedVisitType, selectedScreening, selectedProviders, resetFilters, getFilterDetail, selectedSavedFilterUuid, setIsFilterApplied } = props;
+  const { getAppointmentFiltersData, selectedStatus, setEmptySearch, setSelectedStatus, handleAddEventData, isFilterApplied, appointmentFiltersData, setMainLoader, isFilterDataLoading, loadMoreAppointment, filters, selectedFilterList, setSelectedVisitType, setSelectedScreening, setSelectedProviders, setAnchorEl, anchorEl, selectedVisitType, selectedScreening, selectedProviders, resetFilters, getFilterDetail, selectedSavedFilterUuid, setIsFilterApplied } = props;
   const { patient_screening, provider, visit_type } = appointmentFiltersData || {};
 
   const label = { inputProps: { "aria-label": "Checkbox demo" } };
@@ -89,6 +89,7 @@ function FilterButton(props: any) {
     setIsFilterApplied(true);
     getAppointmentFiltersData();
     setIsSavedFilterSettingClicked(false);
+    setEmptySearch(true)
   };
 
   const isEmptyFilter = () => {
@@ -153,6 +154,7 @@ function FilterButton(props: any) {
     dispatch(emptyAppointmentList());
     loadMoreAppointment(filtersData, "FRONTEND_FILTER_CLICK_FILTER_APPLIED_SUCCESS");
     setAnchorEl(null);
+    setEmptySearch(true)
   }
 
   const createFilterModal = (isEdit: boolean = false) => {
@@ -218,6 +220,7 @@ function FilterButton(props: any) {
       if (e?.payload) {
         toast.success('Filter successfully updated');
         setIsModalOpen(false);
+        setEmptySearch(true);
         dispatch(getSelectedFilterList());
         resetFilters(true);
       }

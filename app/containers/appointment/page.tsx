@@ -600,7 +600,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
 
   const searchAppointmentPatientName = (e: any) => {
     setPatientNameSearch(e.target.value);
-
+    setEmptySearch(false);
+    
     if (!e?.target?.value) {
       const filtersData = {
         ...filters,
@@ -833,6 +834,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   }, [inView])
 
 
+  const [emptySearch , setEmptySearch] = useState(false);
+
   const columns = ["Appt Time", "Patient Name", "Type of Visit", "Clinician", "Screening", "Action"];
 
   return (
@@ -904,6 +907,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
             <Box sx={{ display: 'flex' }}>
               <FilterMenu>
                 <FilterButton
+                setEmptySearch={setEmptySearch}
                   selectedStatus={selectedStatus}
                   setSelectedStatus={setSelectedStatus}
                   handleAddEventData={handleAddEventData}
@@ -1040,7 +1044,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
                           </LoaderBox>
                         </TableMidData>
                       </TableRow>
-                      : <PatientNotFound isFilterApplied={isFilterApplied} searchTerm={patientNameSearch} icon={isFilterApplied} resetFilters={resetFilters} />
+                      : <PatientNotFound emptySearch={emptySearch} isFilterApplied={isFilterApplied} searchTerm={patientNameSearch} icon={isFilterApplied} resetFilters={resetFilters} />
                   }
                 </TableBody>
               </Table>

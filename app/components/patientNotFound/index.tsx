@@ -22,7 +22,7 @@ const PatientNotFound = (props: any) => {
     objectFit: "contain",
   };
 
-  const { icon, resetFilters, searchTerm, isFilterApplied } = props;
+  const { icon, resetFilters, searchTerm, isFilterApplied, emptySearch } = props;
 
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
@@ -77,7 +77,7 @@ const PatientNotFound = (props: any) => {
                 alt="Description of image" // Accessible description
               />
               <MainBoxHeading sx={{ textAlign: "center" }} variant="h2">
-              Sorry, no results found for {((selectedVisitType + selectedScreening + selectedProviders).length > 0 && isFilterApplied !== false ) ? "selected criteria" : `'${searchTerm}'`}.
+              Sorry, no results found for {((selectedVisitType + selectedScreening + selectedProviders).length > 0  || emptySearch === true ) ? "selected criteria" : `'${searchTerm}'`}.
               </MainBoxHeading>
 
               <ClearButton onClick={() => resetFilters()}>Clear Search</ClearButton>
