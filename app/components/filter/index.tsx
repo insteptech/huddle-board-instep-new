@@ -63,7 +63,6 @@ function FilterButton(props: any) {
 
   const handleStatusSelection = (pro: { name: string }) => {
     setSelectedStatus(pro.name);
-    console.log(pro , "dvfhsdgdg")
   };
 
 

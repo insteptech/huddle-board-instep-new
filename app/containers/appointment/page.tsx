@@ -92,6 +92,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   const selectedFilterList = useSelector((state: AppState) => state.appointment.selectedFilterList);
   const filters = useSelector((state: AppState) => state.appointment.filtersData);
   const { page } = filters;
+
   // Calculate the difference between UTC and US Pacific Time
   var myDate = new Date()
   var pstDate = myDate.toLocaleString("en-US", {
@@ -100,7 +101,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
 
   var pstDateNew = new Date(pstDate);
 
-  const [date, setDate] = React.useState(myDate);
+  const [date, setDate] = React.useState(pstDateNew);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedVisitType, setSelectedVisitType] = useState<any>(filters.visit_types || []);
@@ -480,7 +481,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
 
   const handlePdf = () => {
     const timezone = "US/Pacific";
-  
+
     const appliedFilters = {
       ...filters,
       file_type: 'pdf',
