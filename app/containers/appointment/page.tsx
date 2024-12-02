@@ -163,6 +163,10 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     }
   };
 
+  console.log(selectedVisitType,
+   selectedScreening,
+    selectedProviders, "dbfhdsbgdgfdh")
+
   useEffect(() => {
     const processEventData = async () => {
       for (const item of eventData) {
@@ -229,7 +233,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     };
   }, []);
 
-
   const isSlug = () => {
     if (searchParam.has("slug")) {
       return true;
@@ -238,9 +241,9 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       return false;
     }
   }
+  
 
   useEffect(() => {
-
     if (idleTime >= idleTimeEnv) {
       setIdleModalOpen(true);
     }
@@ -256,7 +259,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       setMainLoader(false);
       dispatch(updateFilter({ page: filter && filter.page ? filter.page + 1 : page }));
       if (response?.payload?.results.length === 0) {
-
         setIsClearFilter(true);
       } else {
         setIsClearFilter(false);
@@ -296,8 +298,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         setIsPatientNotFound(false);
         dispatch(updateFilter({ page: Number(page) + 1 }));
         setMainLoader(false);
-
-
         if (response?.payload?.results.length === 0) {
           setIsClearFilter(true);
 
@@ -523,7 +523,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       });
   };
   
-
   const getAppointmentFiltersData = () => {
     dispatch(getFiltersData());
     dispatch(getSelectedFilterList());
@@ -532,7 +531,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   const setStatus = ()=>{
     setSelectedStatus("Not Cancelled");
   }
-
 
   const resetFilters = (isFilterPopOpen: boolean = false) => {
     const formattedDates = formatDates(date, date);
@@ -789,7 +787,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     loadMoreAppointment(filtersData);
   };
 
-
   // expand functionality
 
   let dispatchedUUIDs: any = [];
@@ -1037,7 +1034,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
                           </LoaderBox>
                         </TableMidData>
                       </TableRow>
-                      : <PatientNotFound searchTerm={patientNameSearch} icon={isFilterApplied} resetFilters={resetFilters} />
+                      : <PatientNotFound isFilterApplied={isFilterApplied} searchTerm={patientNameSearch} icon={isFilterApplied} resetFilters={resetFilters} />
                   }
                 </TableBody>
               </Table>

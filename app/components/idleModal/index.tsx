@@ -56,7 +56,7 @@ const IdleModal = (props: any) => {
     return (
         <React.Fragment>
             <Dialog
-                sx={{ zIndex: "99999", textAlign: "center" }}
+                sx={{ zIndex: "99999", textAlign: "center" , backdropFilter: 'blur(5px)' }}
                 PaperProps={{ sx: { borderRadius: "12px", width: "400px" } }}
                 open={idleModalOpen}
                 TransitionComponent={DeleteTransition}

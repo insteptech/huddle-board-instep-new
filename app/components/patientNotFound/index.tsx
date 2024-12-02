@@ -13,6 +13,8 @@ import { ImageListItem } from '@mui/material';
 import Image1 from "../../images/Illustration.png";
 import Image2 from "../../images/no_appointment.png";
 import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, AppState } from '@/app/redux/store';
 
 const PatientNotFound = (props: any) => {
 
@@ -20,12 +22,14 @@ const PatientNotFound = (props: any) => {
     objectFit: "contain",
   };
 
-  const { icon, resetFilters, searchTerm } = props;
+  const { icon, resetFilters, searchTerm, isFilterApplied } = props;
 
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
   });
+
+  const filters = useSelector((state: AppState) => state.appointment.filtersData);
 
   useEffect(() => {
     const handleResize = () => {
@@ -38,6 +42,10 @@ const PatientNotFound = (props: any) => {
     handleResize();
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  const [selectedVisitType, setSelectedVisitType] = useState<any>(filters.visit_types || []);
+  const [selectedScreening, setSelectedScreening] = useState<any>(filters.screening || []);
+  const [selectedProviders, setSelectedProviders] = useState<any>(filters.providers_uuids || []);
 
   return (
     <>
@@ -69,7 +77,7 @@ const PatientNotFound = (props: any) => {
                 alt="Description of image" // Accessible description
               />
               <MainBoxHeading sx={{ textAlign: "center" }} variant="h2">
-                Sorry, no results found for '{searchTerm}'. Please check the <br /> spelling or try different search criteria.
+              Sorry, no results found for {((selectedVisitType + selectedScreening + selectedProviders).length > 0 && isFilterApplied !== false ) ? "selected criteria" : `'${searchTerm}'`}.
               </MainBoxHeading>
 
               <ClearButton onClick={() => resetFilters()}>Clear Search</ClearButton>
@@ -105,7 +113,7 @@ const PatientNotFound = (props: any) => {
                   alt="Description of image" // Accessible description
                 />
                 <MainBoxHeading sx={{ textAlign: "center" }} variant="h2">
-                  There are no scheduled appointments for today. Please <br /> check back later or adjust your search criteria.
+                  There are no scheduled appointments for today.
                 </MainBoxHeading>
               </MainBox>
             </StyledTableCenter>
