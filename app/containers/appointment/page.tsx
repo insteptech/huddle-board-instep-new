@@ -255,7 +255,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   const loadMoreAppointment = (filter: FiltersDataState, auditState?: any) => {
 
     dispatch(getAppointmentsList(filter)).then((response: any) => {
-      setGetMoreAppointment(response.payload.count);
+      setGetMoreAppointment(response?.payload?.count);
       setMainLoader(false);
       dispatch(updateFilter({ page: filter && filter.page ? filter.page + 1 : page }));
       if (response?.payload?.results.length === 0) {
@@ -668,6 +668,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   }
 
   const dateRangeHandleChange = (dates: any) => {
+
+    console.log(dates , "datesdates");
     const formattedDates = formatDates(dates, dates);
     const filter = {
       ...filters,
@@ -717,10 +719,12 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     if (!appointmentsListString) return;
     const { past_calendar_days_count, future_calender_days_count } = JSON.parse(appointmentsListString);
 
-    const currentDate = pstDateNew;
+    const currentDate = date;
     const currentDay = currentDate.getDate();
 
     const selectedDate = new Date(date);
+
+    console.log(selectedDate, "selectedDate")
 
     if (direction.toLowerCase() === "left") {
       selectedDate.setDate(date.getDate() - 1);
@@ -742,14 +746,16 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     setArrowDisabledRight(false);
     setArrowDisabledLeft(false);
 
-
     if (minDateOnly.getDate() === selectedDay && minDateOnly.getMonth() === selectedMonth) {
       setArrowDisabledLeft(true);
     } else if (maxDateOnly.getDate() === selectedDay && minDateOnly.getMonth() === selectedMonth) {
       setArrowDisabledRight(true);
     }
 
-    dateRangeHandleChange(selectedDate);
+    const newDate = new Date(selectedDate);
+    newDate.setDate(newDate.getDate() + 1); // Add 1 day
+    dateRangeHandleChange(newDate);
+
   }
 
   // ****************************************** Show and hide appointments
