@@ -357,7 +357,12 @@ function FilterButton(props: any) {
                               className='radio_sec'
                             >
                               {selectedFilterList?.map((list: any, index: number) => (
-                                <FormControlLabel onClick={() => { selectSavedFilter(list) }} key={index} className={selectedSavedFilterUuid === list.uuid ? 'radio_sec_inner selectedSavedFilter' : 'radio_sec_inner'} value={list.uuid} control={isSavedFilterSettingClicked ? <Radio onClick={() => selectSavedFilter(list)} checked={selectedSavedFilterUuid === list.uuid} /> : <List />} label={list.name} />
+                                <FormControlLabel sx={{textAlign:"left", 
+                                  wordWrap: "break-word", // Allow wrapping of long words
+                                  wordBreak: "break-word", // Break long words if necessary
+                                  whiteSpace: "normal", // Ensure text wraps and does not overflow
+
+                                }} onClick={() => { selectSavedFilter(list) }} key={index} className={selectedSavedFilterUuid === list.uuid ? 'radio_sec_inner selectedSavedFilter' : 'radio_sec_inner'} value={list.uuid} control={isSavedFilterSettingClicked ? <Radio onClick={() => selectSavedFilter(list)} checked={selectedSavedFilterUuid === list.uuid} /> : <List />} label={list.name} />
                               ))}
                             </RadioGroup>
                           </RadioMain>

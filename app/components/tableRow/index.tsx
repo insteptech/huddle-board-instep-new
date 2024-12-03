@@ -11,6 +11,7 @@ import {
     TableHead,
     TableBody,
     CircularProgress,
+    Button,
 } from '@mui/material';
 import { LoaderBox, SpanText2 } from '../../styles/customStyle';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -143,10 +144,19 @@ const Row = (props: any) => {
                         <StyledCopy>
                             MRN: {appointment.mrn}
                             <Tooltip title={isCopied ? "Copied" : "Copy"} placement="top">
-                                <ContentCopyIcon
+                               <Button onClick={(event) => copyMrn(appointment.mrn, event)} sx={{padding:0 , margin: 0 , 
+                               display: "inline-block",
+                               width:"10px !important",
+                               ':hover , :focus':{
+                                backgroundColor:'transparent',
+                               }
+
+
+                               }}> <ContentCopyIcon
                                     onClick={(event) => copyMrn(appointment.mrn, event)}
                                     sx={{ verticalAlign: 'middle', color: '#17236D', fontSize: '15px', marginLeft: '5px' }}
                                 />
+                                </Button>
                             </Tooltip>
                         </StyledCopy>
                     </StyledName>
@@ -314,7 +324,7 @@ const Row = (props: any) => {
                                                     <TableBody>
                                                         {appointmentDetail && appointmentDetail.map((detail: any) => (
                                                             <TableRowInside key={detail.uuid}>
-                                                                <TableMidData><SpanText>{detail.screening}</SpanText></TableMidData>
+                                                                <TableMidData sx={{ width: "10%" }}><SpanText>{detail.screening}</SpanText></TableMidData>
                                                                 <TableMidData sx={{ width: "20%" }}><ActionBtn>{detail.action}</ActionBtn></TableMidData>
                                                                 <TableMidData ><Text><Tooltip title={detail.description} placement="top">{detail.description}</Tooltip></Text></TableMidData>
                                                                 <TableMidData sx={{ width: '180px' }}>

@@ -57,6 +57,7 @@ import { UncheckedIcon, CheckedIcon } from "../../images/check"
 import { max } from 'date-fns';
 import { FaCheckCircle } from 'react-icons/fa';  // for success icon
 import Shimmer from '@/app/components/shimmerEffect';
+import ShimmerTable from '@/app/components/shimmerEffect';
 
 const Row = dynamic(() => import('@/app/components/tableRow/index').then((mod) => mod), {
   ssr: false,
@@ -118,16 +119,16 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   const [eventData, setEventData] = useState<EventData[]>([]);
   const [newEventData, setNewEventData] = useState<EventData[]>([]);
   const dispatchMemoized = useCallback(dispatch, []); // memoize dispatch
- // Calculate the difference between UTC and US Pacific Time
+  // Calculate the difference between UTC and US Pacific Time
 
- var myDate = new Date()
- var pstDate = myDate.toLocaleString("en-US", {
-   timeZone: "America/Los_Angeles"
- })
+  var myDate = new Date()
+  var pstDate = myDate.toLocaleString("en-US", {
+    timeZone: "America/Los_Angeles"
+  })
 
- var pstDateNew = new Date(pstDate);
+  var pstDateNew = new Date(pstDate);
 
- const [date, setDate] = React.useState(pstDateNew);
+  const [date, setDate] = React.useState(pstDateNew);
 
   useEffect(() => {
     async function fetchEventData() {
@@ -161,7 +162,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   };
 
   console.log(selectedVisitType,
-   selectedScreening,
+    selectedScreening,
     selectedProviders, "dbfhdsbgdgfdh")
 
   useEffect(() => {
@@ -237,7 +238,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       return false;
     }
   }
-  
+
   useEffect(() => {
     if (idleTime >= idleTimeEnv) {
       setIdleModalOpen(true);
@@ -248,13 +249,22 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
 
   // Load More Appointment
 
+  const [blurLength, setBlurLength] = useState(10)
+
   const loadMoreAppointment = (filter: FiltersDataState, auditState?: any) => {
 
     dispatch(getAppointmentsList(filter)).then((response: any) => {
       setGetMoreAppointment(response?.payload?.count);
       setMainLoader(false);
+
+      console.log(page, "pagepage")
+      if (page && page > 2) {
+        setBlurLength(1)
+      }
+
       dispatch(updateFilter({ page: filter && filter.page ? filter.page + 1 : page }));
       if (response?.payload?.results.length === 0) {
+
         setIsClearFilter(true);
       } else {
         setIsClearFilter(false);
@@ -441,19 +451,19 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       dispatch(getAppointmentDetail({ appointment_id: res?.meta?.arg?.appointment_id })).then((res: any) => {
         dispatch(getAppointmentDetailMulti({ appointment_id: res?.meta?.arg?.appointment_id })).then((res) => {
         })
-        dispatch(getAppointmentsList(filters));
       })
-      const formattedDates = formatDates(filters.appointment_start_date, filters.appointment_end_date);
+
       const payload = {
+        ...filters,
         page: 1,
-        page_size: 200,
-        appointment_start_date: formattedDates.start,
-        appointment_end_date: formattedDates.end,
+        page_size: 10,
+
       };
-      dispatch(getAllAppointments(payload));
+      dispatch(getAppointmentsList(payload));
+
 
     }).catch(() => {
-      
+
       handleAddEventData("FRONTEND_TILE_CLICK_ACTION", `FRONTEND_TILE_CLICK_ACTION${value}`, `FRONTEND_TILE_CLICK_ACTION${value}`)
     })
   }
@@ -467,19 +477,19 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       timezone: timezone,
       page: 1,
     };
-  
+
     const url = `${API_URL}download-appointments/?${urlParams(appliedFilters)}`;
-  
+
     fetch(url, {
       method: 'get',
       headers: { "Authorization": `JWT ${accessToken()}` },
     })
       .then(res => {
-        if (!res.ok) { 
+        if (!res.ok) {
           toast.error("Failed to download the PDF. Please try again.");
-          throw new Error(`HTTP error! status: ${res.status}`); 
+          throw new Error(`HTTP error! status: ${res.status}`);
         }
-        return res.blob(); 
+        return res.blob();
       })
       .then(blob => {
         const aElement = document.createElement('a');
@@ -490,7 +500,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         aElement.setAttribute('target', '_blank');
         aElement.click();
         URL.revokeObjectURL(href);
-  
+
         handleAddEventData(
           "FRONTEND_PRINT_CLICK",
           "Frontend Print Document Successful",
@@ -501,13 +511,13 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         console.error("Error during PDF download:", err);
       });
   };
-  
+
   const getAppointmentFiltersData = () => {
     dispatch(getFiltersData());
     dispatch(getSelectedFilterList());
   }
 
-  const setStatus = ()=>{
+  const setStatus = () => {
     setSelectedStatus("Not Cancelled");
   }
 
@@ -538,6 +548,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     dispatch(emptyAppointmentList());
     loadMoreAppointment(filtersData, "FRONTEND_FILTER_CLICK_FILTER_RESET");
     setPatientNameSearch('');
+    setCompletedActions(false);
+    setZeroScreenings(false);
     setSelectedSavedFilterUuid('');
     if (!isFilterPopOpen) {
       setAnchorEl(null);
@@ -580,7 +592,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   const searchAppointmentPatientName = (e: any) => {
     setPatientNameSearch(e.target.value);
     setEmptySearch(false);
-    
+
     if (!e?.target?.value) {
 
       const filtersData = {
@@ -624,6 +636,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   }
 
   const getFilterDetail = (filter: any) => {
+
     setSelectedSavedFilterUuid(filter.uuid);
     dispatch(getSelectedFilterDetail(filter.uuid)).then((response: any) => {
       const { payload } = response || {};
@@ -643,15 +656,15 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       setSelectedVisitType(payload.visit_type);
       setSelectedScreening(payload.screening);
       setSelectedProviders(payload.providers);
-      dispatch(updateFilter(filtersData));
-      dispatch(emptyAppointmentList());
-      loadMoreAppointment(filtersData);
+      // dispatch(updateFilter(filtersData));
+      // dispatch(emptyAppointmentList());
+      // loadMoreAppointment(filtersData);
     })
   }
 
   const dateRangeHandleChange = (dates: any) => {
 
-    console.log(dates,date , "datesdates");
+    console.log(dates, date, "datesdates");
     const formattedDates = formatDates(dates, dates);
 
     console.log(formattedDates, "datesdates")
@@ -735,7 +748,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         "Frontend Date filter selected using right arrow",
         "Frontend Date filter selected using right arrow"
       );
-    } 
+    }
 
     setDate(selectedDate);
     const selectedDay = selectedDate.getDate();
@@ -757,7 +770,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       setArrowDisabledRight(true);
     }
 
-    dateRangeHandleChange(selectedDate);
+    dateRangeHandleChange2(selectedDate);
   }
 
   // ****************************************** Show and hide appointments
@@ -835,7 +848,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   }, [inView])
 
 
-  const [emptySearch , setEmptySearch] = useState(false);
+  const [emptySearch, setEmptySearch] = useState(false);
 
   const columns = ["Appt Time", "Patient Name", "Type of Visit", "Clinician", "Screening", "Action"];
 
@@ -901,14 +914,14 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         <TableDiv sx={{
           height: {
             xs: "auto", // For extra-small devices, make the height auto
-            sm: !isPatientNotFound ?'auto':"80vh" // For small and above, cover the full viewport height
+            sm: !isPatientNotFound ? 'auto' : "80vh" // For small and above, cover the full viewport height
           }
         }}>
           <TableTopMain>
             <Box sx={{ display: 'flex' }}>
               <FilterMenu>
                 <FilterButton
-                setEmptySearch={setEmptySearch}
+                  setEmptySearch={setEmptySearch}
                   selectedStatus={selectedStatus}
                   setSelectedStatus={setSelectedStatus}
                   handleAddEventData={handleAddEventData}
@@ -1010,7 +1023,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
 
 
           {(isPatientNotFound || isClearFilter) && (
-            <TableOtherContainer sx={{ m: "10px 0 0 0", height: !isPatientNotFound ? 'auto': windowHeight - 300}}>
+            <TableOtherContainer sx={{ m: "10px 0 0 0", height: !isPatientNotFound ? 'auto' : windowHeight - 300 }}>
               <Table sx={{ height: "100%" }} aria-label="collapsible table">
                 <Table_Head sx={{ backgroundColor: "#17236D", color: "#fff" }}>
                   <TableRow>
@@ -1045,7 +1058,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
                           </LoaderBox>
                         </TableMidData>
                       </TableRow>
-                      : <PatientNotFound emptySearch={emptySearch} isFilterApplied={isFilterApplied} searchTerm={patientNameSearch} icon={isFilterApplied} resetFilters={resetFilters} />
+                      : <PatientNotFound completedActions={completedActions} zeroScreenings={zeroScreenings} emptySearch={emptySearch} isFilterApplied={isFilterApplied} searchTerm={patientNameSearch} icon={isFilterApplied} resetFilters={resetFilters} />
                   }
                 </TableBody>
               </Table>
@@ -1077,7 +1090,9 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
                 </Table_Head>
                 {
                   mainLoader ?
-                    <Shimmer />
+                    <>
+                      <ShimmerTable />
+                    </>
 
                     : <TableBody>
                       {appointmentsList.map(
@@ -1125,47 +1140,51 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
                         )
                       )}
                       {
-                        (appointmentsList.length < getMoreAppointment) ? 
-                    
-                      <>
-                        <TableRow >
-                          <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                          <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                          <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                          <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                          <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                          <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                        </TableRow>
+                        (appointmentsList.length < getMoreAppointment) ?
 
-                        <TableRow sx={{ backgroundColor: "white", mb: 2 }}>
-                          {columns.map((_, cellIndex) => (
-                            <TableCell
-                              key={cellIndex}
-                              style={{
+                          <>
+                            <TableRow >
+                              <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
+                              <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
+                              <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
+                              <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
+                              <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
+                              <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
+                            </TableRow>
 
-                                backgroundColor: 'white',
-                                border: 'none',
-                                textAlign: 'center' // Center align the shimmer
-                              }}
-                            >
-                              <Skeleton
-                                variant="rectangular"
-                                animation="wave"
-                                height={28}
-                                width="90%"
-                                style={{
-                                  borderRadius: 1, margin: 2,
-                                  background: 'linear-gradient(90deg, #F0EBEB 0%, #E2E2E2 29.61%, #EBEBEB 62.23%, #F7F7F7 100%)',
-                                  animation: 'shimmer 1.5s infinite ease-in-out'
-                                }} // Center within the cell
-                              />
-                            </TableCell>
-                          ))}
-                        </TableRow>
-                        </> : null
-                          }
-                      </TableBody>
-                    
+                            {Array.from({ length: blurLength }).map((_, rowIndex) => (
+                              <TableRow key={rowIndex} sx={{ backgroundColor: "white", mb: 2 }}>
+                                {columns.map((_, cellIndex) => (
+                                  <TableCell
+                                    key={cellIndex}
+                                    sx={{
+                                      backgroundColor: 'white',
+                                      border: 'none',
+                                      textAlign: 'center',
+                                      width: '150px', // Consistent width for all cells
+                                      padding: 2, // Consistent padding for all cells
+                                    }}
+                                  >
+                                    <Skeleton
+                                      variant="rectangular"
+                                      animation="wave"
+                                      height={28}
+                                      width="90%"
+                                      style={{
+                                        borderRadius: 1, margin: 2,
+                                        background: 'linear-gradient(90deg, #F0EBEB 0%, #E2E2E2 29.61%, #EBEBEB 62.23%, #F7F7F7 100%)',
+                                        animation: 'shimmer 1.5s infinite ease-in-out'
+                                      }} // Center within the cell
+                                    />
+                                  </TableCell>
+                                ))}
+                              </TableRow>
+                            ))}
+
+                          </> : null
+                      }
+                    </TableBody>
+
                 }
               </Table>
               <div><h6 ref={ref} style={{ textAlign: "center", visibility: "hidden", height: "1px" }} ></h6></div>

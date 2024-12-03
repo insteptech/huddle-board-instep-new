@@ -7,24 +7,24 @@ const ShimmerTable: React.FC = () => {
 
     return (
         <TableBody>
-            
             {Array.from({ length: rowCount }).map((_, rowIndex) => (
-                <>
-                    <TableRow >
-                        <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                        <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                        <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                        <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                        <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                        <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
+                <React.Fragment key={rowIndex}>
+                    {/* Empty TableRow for shimmer effect */}
+                    <TableRow>
+                        {columns.map((_, cellIndex) => (
+                            <TableCell 
+                                key={`empty-${cellIndex}`} 
+                                style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}
+                            />
+                        ))}
                     </TableRow>
 
-                    <TableRow key={rowIndex} sx={{ backgroundColor: "white", mb: 2 }}>
+                    {/* Shimmer TableRow with Skeleton */}
+                    <TableRow key={`shimmer-${rowIndex}`} sx={{ backgroundColor: "white", mb: 2 }}>
                         {columns.map((_, cellIndex) => (
                             <TableCell
-                                key={cellIndex}
+                                key={`shimmer-cell-${cellIndex}`}
                                 style={{
-                                   
                                     backgroundColor: 'white',
                                     border: 'none',
                                     textAlign: 'center' // Center align the shimmer
@@ -35,15 +35,17 @@ const ShimmerTable: React.FC = () => {
                                     animation="wave"
                                     height={28}
                                     width="90%"
-                                    style={{ borderRadius: 1 , margin:2 ,
+                                    style={{
+                                        borderRadius: 1, 
+                                        margin: 2,
                                         background: 'linear-gradient(90deg, #F0EBEB 0%, #E2E2E2 29.61%, #EBEBEB 62.23%, #F7F7F7 100%)',
                                         animation: 'shimmer 1.5s infinite ease-in-out'
-                                     }} // Center within the cell
+                                    }} // Center within the cell
                                 />
                             </TableCell>
                         ))}
                     </TableRow>
-                </>
+                </React.Fragment>
             ))}
         </TableBody>
     );

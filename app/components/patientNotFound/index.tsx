@@ -22,7 +22,7 @@ const PatientNotFound = (props: any) => {
     objectFit: "contain",
   };
 
-  const { icon, resetFilters, searchTerm, isFilterApplied, emptySearch } = props;
+  const { icon, completedActions ,zeroScreenings, resetFilters, searchTerm, isFilterApplied, emptySearch } = props;
 
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
@@ -47,9 +47,11 @@ const PatientNotFound = (props: any) => {
   const [selectedScreening, setSelectedScreening] = useState<any>(filters.screening || []);
   const [selectedProviders, setSelectedProviders] = useState<any>(filters.providers_uuids || []);
 
+  console.log(icon)
+
   return (
     <>
-      {icon ? (
+      {(icon && (!completedActions || !zeroScreenings))? (
         <>
          <TableRow sx={{height:'10px', backgroundColor:"#f3f7fc" , }} >
           <StyledTableCenter
