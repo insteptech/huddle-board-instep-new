@@ -101,6 +101,32 @@ export const formatDates = (startDate: any, endDate: any) => {
 };
 
 
+export const DateFormatter = (startDate: any, endDate: any) => {
+  const pacificTimezone = "America/Los_Angeles";
+
+  const startDatePST = new Date(startDate);
+  const startDatePacific = new Date(startDatePST);
+  startDatePacific.setHours(0, 0, 0, 0); 
+
+  const endDatePST = new Date(endDate);
+  const endDatePacific = new Date(endDatePST);
+  endDatePacific.setHours(23, 59, 59, 0); 
+  
+  startDatePacific.setHours(startDatePacific.getHours() + 8);
+  endDatePacific.setHours(endDatePacific.getHours() + 8);
+
+  const formatDateToUTC = (date: Date) => {
+    const utcDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    const isoString = utcDate.toISOString();
+    return isoString.replace(/\.\d{3}Z$/, 'Z');
+  };
+
+  return {
+    start: formatDateToUTC(startDatePacific),
+    end: formatDateToUTC(endDatePacific),
+  };
+};
+
 export const deleteLocalStorage = () => {
   const { accessToken, slugKey, refreshToken, huddleBoardConfig } = sessionKeys;
   localStorage.removeItem(accessToken);

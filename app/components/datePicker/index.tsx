@@ -12,7 +12,7 @@ const DatePicker = (props: any) => {
     const [minDate, setMinDate] = useState(new Date());
     const [maxDate, setMaxDate] = useState(new Date());
     const anchorRef = useRef<any>(null);
-
+    const [calDate, setCalDate] = useState(new Date());
     const huddleBoardConfig = localStorage.getItem('huddleBoardConfig');
     const config = huddleBoardConfig ? JSON.parse(huddleBoardConfig) : null;
 
@@ -20,13 +20,13 @@ const DatePicker = (props: any) => {
     const maxDateFromConfig = config?.future_calender_days_count;
 
     const handleDateChange = (newDate: Date) => {
-        const currentDate = new Date();
 
+
+        const currentDate = new Date();
         const newDateDatePart = new Date(newDate.toDateString());
         const combinedDate = new Date(`${newDateDatePart.toDateString()} ${currentDate.toTimeString().split(' ')[0]}`);
-
+        setDate(combinedDate)
         dateRangeHandleChange(combinedDate);
-        setDate(combinedDate);
 
         // Calculate the next day in Pacific Time
         const newDate1 = new Date(newDate.getTime() + 1 * 24 * 60 * 60 * 1000);
@@ -106,15 +106,15 @@ const DatePicker = (props: any) => {
                             '.rdrDayHovered .rdrDayNumber::after': {
                                 display: 'none'
                             }
-,
-'.rdrMonthAndYearPickers': {
-  '& select': { // Use '&' to target the nested select element
-    textAlign: 'left', // Use camelCase for CSS property names in JavaScript
-    '&:hover': {
-      backgroundColor: 'rgb(255 255 255 / 70%)', // Use camelCase for CSS properties
-    },
-  },
-}
+                            ,
+                            '.rdrMonthAndYearPickers': {
+                                '& select': { // Use '&' to target the nested select element
+                                    textAlign: 'left', // Use camelCase for CSS property names in JavaScript
+                                    '&:hover': {
+                                        backgroundColor: 'rgb(255 255 255 / 70%)', // Use camelCase for CSS properties
+                                    },
+                                },
+                            }
                         }}
                     >
                         <Calendar date={date} onChange={handleDateChange} minDate={minDate} maxDate={maxDate} />

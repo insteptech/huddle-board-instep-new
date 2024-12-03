@@ -247,7 +247,7 @@ const Row = (props: any) => {
                                                 :
                                                 expand ? (
                                                     <TableBody>
-                                                        {!isDetailLoading && appointmentDetailMulti.filter((item: any) => item?.sentUuid?.appointment_id === appointment.uuid).map((detail: any) => (
+                                                        {appointmentDetailMulti && appointmentDetailMulti.filter((item: any) => item?.sentUuid?.appointment_id === appointment.uuid).map((detail: any) => (
                                                             <TableRowInside key={detail.uuid}>
                                                                 <TableMidData><SpanText>{detail.screening}</SpanText></TableMidData>
                                                                 <TableMidData sx={{ width: "20%" }}><ActionBtn>{detail.action}</ActionBtn></TableMidData>
@@ -312,7 +312,7 @@ const Row = (props: any) => {
                                                     </TableBody>
                                                 ) : (
                                                     <TableBody>
-                                                        {!isDetailLoading && appointmentDetail.map((detail: any) => (
+                                                        {appointmentDetail && appointmentDetail.map((detail: any) => (
                                                             <TableRowInside key={detail.uuid}>
                                                                 <TableMidData><SpanText>{detail.screening}</SpanText></TableMidData>
                                                                 <TableMidData sx={{ width: "20%" }}><ActionBtn>{detail.action}</ActionBtn></TableMidData>

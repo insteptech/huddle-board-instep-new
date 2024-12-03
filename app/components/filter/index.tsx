@@ -210,7 +210,6 @@ function FilterButton(props: any) {
     let status = selectedStatus === "Cancelled" ? true : false;
 
     const payload = {
-
       visit_type: selectedVisitType,
       screening: selectedScreening,
       provider: selectedProviders,
@@ -218,6 +217,7 @@ function FilterButton(props: any) {
     };
     dispatch(updateAppointmentFilter({ action: payload, uuid: selectedFilterDetail?.uuid })).then((e) => {
       if (e?.payload) {
+        setIsSavedFilterSettingClicked(false);
         toast.success('Filter successfully updated');
         setIsModalOpen(false);
         setEmptySearch(true);

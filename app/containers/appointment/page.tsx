@@ -46,7 +46,7 @@ import { AppointmentState, FiltersDataState, emptyAppointmentList, emptySelected
 import { Box, Container, Input, InputAdornment, CircularProgress, Typography, FormControlLabel, Checkbox, FormGroup, Button, TableCell, Skeleton } from '@mui/material';
 import PatientNotFound from '@/app/components/patientNotFound';
 import { API_URL } from '@/app/redux/config/axiosInstance';
-import { formatDates, parseDate, urlParams } from '@/app/utils/helper';
+import { DateFormatter, formatDates, parseDate, urlParams } from '@/app/utils/helper';
 import DatePicker from '@/app/components/datePicker';
 import { accessToken, loginAuthentication, notAuthenticated, isTokenExpired } from '@/app/utils/auth';
 import IdleModal from '@/app/components/idleModal';
@@ -84,7 +84,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   const appointmentsList = useSelector((state: AppState) => state.appointment?.appointmentsData?.results) || [];
   const appointmentDetail = useSelector((state: AppState) => state.appointment?.appointmentDetail) || [];
   const appointmentDetailMulti = useSelector((state: AppState) => state.appointment?.appointmentDetailMulti) || [];
-
   const isNextAppointmentsList = useSelector((state: AppState) => state.appointment?.appointmentsData?.next);
   const isDetailLoading = useSelector((state: AppState) => state.appointment.isDetailLoading);
   const appointmentFiltersData = useSelector((state: AppState) => state.appointment.appointmentFiltersData);
@@ -92,17 +91,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   const selectedFilterList = useSelector((state: AppState) => state.appointment.selectedFilterList);
   const filters = useSelector((state: AppState) => state.appointment.filtersData);
   const { page } = filters;
-
-  // Calculate the difference between UTC and US Pacific Time
-  var myDate = new Date()
-  var pstDate = myDate.toLocaleString("en-US", {
-    timeZone: "America/Los_Angeles"
-  })
-
-  var pstDateNew = new Date(pstDate);
-
-  const [date, setDate] = React.useState(pstDateNew);
-
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedVisitType, setSelectedVisitType] = useState<any>(filters.visit_types || []);
   const [selectedScreening, setSelectedScreening] = useState<any>(filters.screening || []);
@@ -123,7 +111,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     detail: {}
   })
   const [selectedStatus, setSelectedStatus] = useState<string | null>("Not Cancelled");
-
   const [idleTimeEnv, setIdleTimeEnv] = useState(15);
   const [completedActions, setCompletedActions] = useState(false);
   const [zeroScreenings, setZeroScreenings] = useState(false);
@@ -131,6 +118,16 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   const [eventData, setEventData] = useState<EventData[]>([]);
   const [newEventData, setNewEventData] = useState<EventData[]>([]);
   const dispatchMemoized = useCallback(dispatch, []); // memoize dispatch
+ // Calculate the difference between UTC and US Pacific Time
+
+ var myDate = new Date()
+ var pstDate = myDate.toLocaleString("en-US", {
+   timeZone: "America/Los_Angeles"
+ })
+
+ var pstDateNew = new Date(pstDate);
+
+ const [date, setDate] = React.useState(pstDateNew);
 
   useEffect(() => {
     async function fetchEventData() {
@@ -147,7 +144,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   const handleAddEventData: any = async (event_type: string, output: string, misc_info: string) => {
     await addEventData({ event_type, output, misc_info });
     const EventData: any = await getAllEventData();
-    setEventData(EventData); // Update the state with the new data
+    setEventData(EventData);
 
   };
 
@@ -190,7 +187,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       processEventData();
     }
     return () => {
-
     };
   }, [eventData, newEventData]);
 
@@ -242,14 +238,14 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     }
   }
   
-
   useEffect(() => {
     if (idleTime >= idleTimeEnv) {
       setIdleModalOpen(true);
     }
   }, [idleTime]);
 
-  const [getMoreAppointment, setGetMoreAppointment] = useState(0)
+  const [getMoreAppointment, setGetMoreAppointment] = useState(0);
+
   // Load More Appointment
 
   const loadMoreAppointment = (filter: FiltersDataState, auditState?: any) => {
@@ -286,7 +282,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
               )
               : null;
   };
-
 
   useEffect(() => {
     if (!loginAuthentication() && !notAuthenticated()) {
@@ -326,7 +321,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   };
 
   const getAction = (value: string) => {
-
     switch (value) {
       case 'accept':
         return { accept: false };
@@ -442,6 +436,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         }
       );
       appointmentDetails(appointment_id);
+      setLoaderAppoint(true);
       handleAddEventData("FRONTEND_TILE_CLICK_ACTION", `FRONTEND_TILE_CLICK_ACTION${value}`, `FRONTEND_TILE_CLICK_ACTION${value}`)
       dispatch(getAppointmentDetail({ appointment_id: res?.meta?.arg?.appointment_id })).then((res: any) => {
         dispatch(getAppointmentDetailMulti({ appointment_id: res?.meta?.arg?.appointment_id })).then((res) => {
@@ -458,26 +453,10 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       dispatch(getAllAppointments(payload));
 
     }).catch(() => {
-      ;
+      
       handleAddEventData("FRONTEND_TILE_CLICK_ACTION", `FRONTEND_TILE_CLICK_ACTION${value}`, `FRONTEND_TILE_CLICK_ACTION${value}`)
     })
   }
-
-  // const handlePrint = () => {
-  //   fetch(url, { method: 'get', headers: { "Authorization": `JWT ${accessToken}` } })
-  //     .then(res => res.blob())
-  //     .then(res => {
-  //       const url = URL.createObjectURL(res);
-  //       const newTab = window.open(url, '_blank');
-  //       if (newTab) {
-  //         newTab.onload = () => {
-  //           newTab.print();
-  //         };
-  //       } else {
-  //         console.error('Failed to open new tab');
-  //       }
-  //     });
-  // }
 
   const handlePdf = () => {
     const timezone = "US/Pacific";
@@ -603,6 +582,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     setEmptySearch(false);
     
     if (!e?.target?.value) {
+
       const filtersData = {
         ...filters,
         page: 1,
@@ -610,6 +590,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
 
         patient_name: e.target.value
       };
+
       setTimeout(() => {
         dispatch(emptyAppointmentList());
         setIsFilterApplied(false);
@@ -670,8 +651,10 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
 
   const dateRangeHandleChange = (dates: any) => {
 
-    console.log(dates , "datesdates");
+    console.log(dates,date , "datesdates");
     const formattedDates = formatDates(dates, dates);
+
+    console.log(formattedDates, "datesdates")
     const filter = {
       ...filters,
       appointment_start_date: formattedDates.start,
@@ -685,6 +668,23 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     loadMoreAppointment(filter);
   }
 
+
+  const dateRangeHandleChange2 = (dates: any) => {
+    const formattedDates = DateFormatter(dates, dates);
+
+    const filter = {
+      ...filters,
+      appointment_start_date: formattedDates.start,
+      appointment_end_date: formattedDates.end,
+      page: 1,
+      page_size: 10,
+    };
+
+    dispatch(updateFilter(filter));
+    dispatch(emptyAppointmentList());
+    loadMoreAppointment(filter);
+  }
+
   const handleAppointmentTimeSort = () => {
     setIsAppointmentTimeSortAscending(!isAppointmentTimeSortAscending);
     const filtersData = {
@@ -692,10 +692,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       sort_by: isAppointmentTimeSortAscending ? 'appointment_timestamp' : '-appointment_timestamp',
       page: 1,
       page_size: 10,
-
     };
-
-
     dispatch(updateFilter(filtersData));
     dispatch(emptyAppointmentList());
     loadMoreAppointment(filtersData, "FRONTEND_TILE_CLICK_PATIENT_TIME_SORTING");
@@ -720,21 +717,26 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     if (!appointmentsListString) return;
     const { past_calendar_days_count, future_calender_days_count } = JSON.parse(appointmentsListString);
 
-    const currentDate = date;
+    const currentDate = pstDateNew;
     const currentDay = currentDate.getDate();
-
     const selectedDate = new Date(date);
 
-    console.log(selectedDate, "selectedDate")
-
-    if (direction.toLowerCase() === "left") {
+    if (direction?.toLowerCase() === "left") {
       selectedDate.setDate(date.getDate() - 1);
-      handleAddEventData("FRONTEND_FILTER_CLICK_GENERAL", "Frontend Date filter selected using left arrow", "Frontend Date filter selected using left arrow")
-
+      handleAddEventData(
+        "FRONTEND_FILTER_CLICK_GENERAL",
+        "Frontend Date filter selected using left arrow",
+        "Frontend Date filter selected using left arrow"
+      );
     } else {
       selectedDate.setDate(date.getDate() + 1);
-      handleAddEventData("FRONTEND_FILTER_CLICK_GENERAL", "Frontend Date filter selected using right arrow", "Frontend Date filter selected using right arrow")
-    }
+      handleAddEventData(
+        "FRONTEND_FILTER_CLICK_GENERAL",
+        "Frontend Date filter selected using right arrow",
+        "Frontend Date filter selected using right arrow"
+      );
+    } 
+
     setDate(selectedDate);
     const selectedDay = selectedDate.getDate();
     const selectedMonth = selectedDate.getMonth();
@@ -747,16 +749,15 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     setArrowDisabledRight(false);
     setArrowDisabledLeft(false);
 
+    console.log(maxDateOnly.getDate(), selectedDay, "maxDateOnly")
+
     if (minDateOnly.getDate() === selectedDay && minDateOnly.getMonth() === selectedMonth) {
       setArrowDisabledLeft(true);
-    } else if (maxDateOnly.getDate() === selectedDay && minDateOnly.getMonth() === selectedMonth) {
+    } else if (maxDateOnly.getDate() === selectedDay && maxDateOnly.getMonth() === selectedMonth) {
       setArrowDisabledRight(true);
     }
 
-    const newDate = new Date(selectedDate);
-    newDate.setDate(newDate.getDate() + 1); // Add 1 day
-    dateRangeHandleChange(newDate);
-
+    dateRangeHandleChange(selectedDate);
   }
 
   // ****************************************** Show and hide appointments
