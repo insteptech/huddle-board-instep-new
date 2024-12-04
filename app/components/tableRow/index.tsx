@@ -128,16 +128,16 @@ const Row = (props: any) => {
 
     return (
         <>
-            <StyledTableRow ref={appointment.uuid === id ? firstElementRef : null} onClick={() => setRow(appointment?.uuid, appointment?.selected_gap_count)} sx={{
+            <StyledTableRow ref={appointment?.uuid === id ? firstElementRef : null} onClick={() => setRow(appointment?.uuid, appointment?.selected_gap_count)} sx={{
                 border: 'none',
                 '& > *': {
                     borderBottom: '0', 'td': {
 
-                    }, backgroundColor: ((open && selectedAppointmentUuid === appointment.uuid) || expand) ? '#D2E6FF' : '#fff'
+                    }, backgroundColor: ((open && selectedAppointmentUuid === appointment?.uuid) || expand) ? '#D2E6FF' : '#fff'
                 }
             }}>
                 <TdTableCell>
-                    {renderCellContent(getTime(appointment.appointment_timestamp), appointment.selected_gap_count === 0)}
+                    {renderCellContent(getTime(appointment?.appointment_timestamp), appointment?.selected_gap_count === 0)}
                 </TdTableCell>
                 <TdTableCell>
                     <StyledName>

@@ -49,7 +49,7 @@ const PatientNotFound = (props: any) => {
 
   return (
     <>
-      {(icon && (!completedActions || !zeroScreenings))? (
+      {(icon && (!completedActions && !zeroScreenings))? (
         <>
          <TableRow sx={{height:'10px', backgroundColor:"#f3f7fc" , }} >
           <StyledTableCenter

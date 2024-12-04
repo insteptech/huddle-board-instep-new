@@ -294,12 +294,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       window.location.href = '/unauthorized';
     }
 
-    const formattedDates = DateFormatter(date, date);
-
     const payload = {
       ...filters,
-      appointment_start_date: formattedDates.start,
-      appointment_end_date: formattedDates.end,
     };
 
     dispatch(getAppointmentsList(payload))
@@ -452,18 +448,20 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       dispatch(getAppointmentDetail({ appointment_id: res?.meta?.arg?.appointment_id })).then((res: any) => {
         dispatch(getAppointmentDetailMulti({ appointment_id: res?.meta?.arg?.appointment_id })).then((res) => {
         })
-        // dispatch(getAppointmentsList(filters));
+        // dispatch(getAppointmentsList(filters)).then(()=>{
+        //   console.log("Consoled")
+        // });
       })
-      const formattedDates = DateFormatter(date, date);
+      const formattedDates = formatDates(filters.appointment_start_date, filters.appointment_end_date);
       const payload = {
+        ...filters,
         page: 1,
         page_size: 10,
-        appointment_start_date: formattedDates.start,
-        appointment_end_date: formattedDates.end,
       };
       dispatch(getAllAppointments(payload));
 
     }).catch(() => {
+      ;
 
       handleAddEventData("FRONTEND_TILE_CLICK_ACTION", `FRONTEND_TILE_CLICK_ACTION${value}`, `FRONTEND_TILE_CLICK_ACTION${value}`)
     })
