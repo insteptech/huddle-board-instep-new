@@ -444,7 +444,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       );
       appointmentDetails(appointment_id);
       setLoaderAppoint(true);
-      handleAddEventData("FRONTEND_TILE_CLICK_ACTION", `FRONTEND_TILE_CLICK_ACTION${value}`, `FRONTEND_TILE_CLICK_ACTION${value}`)
+      handleAddEventData("FRONTEND_TILE_CLICK_ACTION", `FRONTEND_TILE_CLICK_ACTION${value}`, `FRONTEND_TILE_CLICK_ACTION${value}`)      
       dispatch(getAppointmentDetail({ appointment_id: res?.meta?.arg?.appointment_id })).then((res: any) => {
         dispatch(getAppointmentDetailMulti({ appointment_id: res?.meta?.arg?.appointment_id })).then((res) => {
         })
@@ -1155,7 +1155,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
                               <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
                             </TableRow>
 
-                            {Array.from({ length: blurLength }).map((_, rowIndex) => (
+                            {/* {Array.from({ length: blurLength }).map((_, rowIndex) => (
                               <TableRow key={rowIndex} sx={{ backgroundColor: "white", mb: 2 }}>
                                 {columns.map((_, cellIndex) => (
                                   <TableCell
@@ -1182,7 +1182,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
                                   </TableCell>
                                 ))}
                               </TableRow>
-                            ))}
+                            ))} */}
 
                           </> : null
                       }

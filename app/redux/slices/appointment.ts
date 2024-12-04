@@ -271,15 +271,16 @@ const appointmentsList = (previousAppointments: any, payload: any) => {
   }
 };
 
-const updateAppointment = (allAppointment: any, selectedAppointment: any, payload: any) => {
+const updateAppointment = (allAppointment: any, selectedAppointment: any, payload: any) => {  
   const updatedAppointment = payload?.results?.find((e: any) => e.uuid === selectedAppointment?.appointment_id);
   let appointments: any[] = [];
   allAppointment.forEach((obj: any) => {
     if (obj.uuid === selectedAppointment?.appointment_id) {
       obj = updatedAppointment;
     }
+    if(obj !== null && obj !== undefined)
     appointments.push(obj);
-  });
+  });  
   return appointments;
 }
 
