@@ -141,11 +141,11 @@ const Row = (props: any) => {
                 </TdTableCell>
                 <TdTableCell>
                     <StyledName>
-                        <StyledPatient>{renderCellContent(appointment.patient_name, appointment.selected_gap_count === 0)}</StyledPatient>
+                        <StyledPatient>{renderCellContent(appointment?.patient_name, appointment?.selected_gap_count === 0)}</StyledPatient>
                         <StyledCopy>
-                            MRN: {appointment.mrn}
+                            MRN: {appointment?.mrn}
                             <Tooltip title={isCopied ? "Copied" : "Copy"} placement="top">
-                               <Button onClick={(event) => copyMrn(appointment.mrn, event)} sx={{padding:0 , margin: 0 , 
+                               <Button onClick={(event) => copyMrn(appointment?.mrn, event)} sx={{padding:0 , margin: 0 , 
                                display: "inline-block",
                                width:"10px !important",
                                ':hover , :focus':{
@@ -154,7 +154,7 @@ const Row = (props: any) => {
 
 
                                }}> <ContentCopyIcon
-                                    onClick={(event) => copyMrn(appointment.mrn, event)}
+                                    onClick={(event) => copyMrn(appointment?.mrn, event)}
                                     sx={{ verticalAlign: 'middle', color: '#17236D', fontSize: '15px', marginLeft: '5px' }}
                                 />
                                 </Button>
@@ -163,13 +163,13 @@ const Row = (props: any) => {
                     </StyledName>
                 </TdTableCell>
                 
-                <TdTableCell>{renderCellContent(appointment.visit_type, appointment.selected_gap_count === 0)}</TdTableCell>
-                <TdTableCell>{renderCellContent(appointment.provider, appointment.selected_gap_count === 0)}</TdTableCell>
-                <TdTableCell><GetScreening screening={appointment.screening.length > 0 ? appointment.screening : ["No Screening Data Available"]} /></TdTableCell>
+                <TdTableCell>{renderCellContent(appointment?.visit_type, appointment?.selected_gap_count === 0)}</TdTableCell>
+                <TdTableCell>{renderCellContent(appointment?.provider, appointment?.selected_gap_count === 0)}</TdTableCell>
+                <TdTableCell><GetScreening screening={appointment?.screening.length > 0 ? appointment?.screening : ["No Screening Data Available"]} /></TdTableCell>
 
                 <TdTableCell>
                     {
-                        appointment.gap_count === 0 ?
+                        appointment?.gap_count === 0 ?
                             // <IconProgress>
                             //     <Stack spacing={2} sx={{ flexGrow: 1 }}>
                             //         <BorderLinearProgress sx={{ minWidth: "40px", maxWidth: "80px" }} variant="determinate" value={0} />
@@ -198,11 +198,11 @@ const Row = (props: any) => {
                             :
                             <IconProgress>
                                 <Stack spacing={2} sx={{ flexGrow: 1 }}>
-                                    <BorderLinearProgress sx={{ minWidth: "40px", maxWidth: "80px" }} variant="determinate" value={(appointment.selected_gap_count / appointment.gap_count) * 100} />
+                                    <BorderLinearProgress sx={{ minWidth: "40px", maxWidth: "80px" }} variant="determinate" value={(appointment?.selected_gap_count / appointment?.gap_count) * 100} />
                                 </Stack>
-                                <ProviderCell>{`${selectedAppointmentGap || appointment.selected_gap_count}/${appointment.gap_count}`}</ProviderCell>
-                                <IconButton aria-label="expand appointment" size="small" onClick={() => setRow(appointment.uuid, appointment.selected_gap_count)}>
-                                    {(open && selectedAppointmentUuid === appointment.uuid || expand) ? <><Tooltip title="Collapse" placement="top"><KeyboardArrowUpIcon sx={{
+                                <ProviderCell>{`${selectedAppointmentGap || appointment?.selected_gap_count}/${appointment?.gap_count}`}</ProviderCell>
+                                <IconButton aria-label="expand appointment" size="small" onClick={() => setRow(appointment?.uuid, appointment?.selected_gap_count)}>
+                                    {(open && selectedAppointmentUuid === appointment?.uuid || expand) ? <><Tooltip title="Collapse" placement="top"><KeyboardArrowUpIcon sx={{
                                         color: 'black',
                                         border: '1px solid black',
                                         height: '16px',
@@ -225,10 +225,10 @@ const Row = (props: any) => {
 
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0, padding: '0' }} colSpan={6}>
-                    <Collapse in={(open && selectedAppointmentUuid === appointment.uuid || expand)} timeout="auto" unmountOnExit>
+                    <Collapse in={(open && selectedAppointmentUuid === appointment?.uuid || expand)} timeout="auto" unmountOnExit>
                         <Box>
                             {
-                                appointment.gap_count === 0 ? 
+                                appointment?.gap_count === 0 ? 
                                 <Table>
 
                                 </Table>
@@ -258,7 +258,7 @@ const Row = (props: any) => {
                                                 :
                                                 expand ? (
                                                     <TableBody>
-                                                        {appointmentDetailMulti && appointmentDetailMulti.filter((item: any) => item?.sentUuid?.appointment_id === appointment.uuid).map((detail: any) => (
+                                                        {appointmentDetailMulti && appointmentDetailMulti.filter((item: any) => item?.sentUuid?.appointment_id === appointment?.uuid).map((detail: any) => (
                                                             <TableRowInside key={detail.uuid}>
                                                                 <TableMidData><SpanText>{detail.screening}</SpanText></TableMidData>
                                                                 <TableMidData sx={{ width: "20%" }}><ActionBtn>{detail.action}</ActionBtn></TableMidData>
