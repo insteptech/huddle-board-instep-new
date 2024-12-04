@@ -43,7 +43,6 @@ import {
 import { getOutComeBtnState } from '@/app/utils/appointment';
 import { getTime } from '@/app/utils/helper';
 import { AppDispatch, AppState } from '@/app/redux/store';
-import { getAppointmentDetailMulti } from '@/app/redux/actions/appointment';
 import { useDispatch, useSelector } from 'react-redux';
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
 
@@ -80,7 +79,9 @@ const Row = (props: any) => {
     useEffect(() => {
      
 
-    }, [expand, appointmentDetailMulti])
+
+
+    }, [expand, appointmentDetailMulti]);
 
     const copyMrn = (mrn: any, event: any) => {
         event.stopPropagation();

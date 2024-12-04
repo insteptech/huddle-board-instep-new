@@ -1,7 +1,7 @@
 import { createSlice, current } from '@reduxjs/toolkit';
 import { getAppointmentsList, getAppointmentDetail, getAppointmentDetailMulti, updateAppointmentDetail, getFiltersData, getSelectedFilterList, getSelectedFilterDetail, getAllAppointments } from '../actions/appointment';
 import { sortArraysInObject, sortObjectsByName } from '@/app/utils/appointment';
-import { formatDates } from '@/app/utils/helper';
+import { DateFormatter, formatDates } from '@/app/utils/helper';
 
 
 const timezone: string = "US/Pacific";
@@ -83,7 +83,15 @@ export type AppointmentDetail = {
   description: String,
   screening_uuid: String
 }
-const formattedDates = formatDates(new Date(), new Date());
+
+var myDate = new Date()
+var pstDate = myDate.toLocaleString("en-US", {
+  timeZone: "America/Los_Angeles"
+})
+
+var pstDateNew = new Date(pstDate);
+
+const formattedDates = DateFormatter(pstDateNew, pstDateNew);
 
 const initialState: AppointmentsState = {
   appointmentsData: {},

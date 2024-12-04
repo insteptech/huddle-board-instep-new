@@ -47,8 +47,6 @@ const PatientNotFound = (props: any) => {
   const [selectedScreening, setSelectedScreening] = useState<any>(filters.screening || []);
   const [selectedProviders, setSelectedProviders] = useState<any>(filters.providers_uuids || []);
 
-  console.log(icon)
-
   return (
     <>
       {(icon && (!completedActions || !zeroScreenings))? (

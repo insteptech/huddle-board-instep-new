@@ -36,9 +36,10 @@ import { emptyAppointmentList, updateFilter } from '@/app/redux/slices/appointme
 import { createAppointmentFilter, deleteSelectedFilterDetail, getSelectedFilterList, updateAppointmentFilter } from '@/app/redux/actions/appointment';
 import { toast } from 'react-toastify';
 import DeleteFilterModal from '../deleteFilterModal';
+import { formatDates, DateFormatter } from '@/app/utils/helper';
 
 function FilterButton(props: any) {
-  const { getAppointmentFiltersData, selectedStatus, setEmptySearch, setSelectedStatus, handleAddEventData, isFilterApplied, appointmentFiltersData, setMainLoader, isFilterDataLoading, loadMoreAppointment, filters, selectedFilterList, setSelectedVisitType, setSelectedScreening, setSelectedProviders, setAnchorEl, anchorEl, selectedVisitType, selectedScreening, selectedProviders, resetFilters, getFilterDetail, selectedSavedFilterUuid, setIsFilterApplied } = props;
+  const { getAppointmentFiltersData, selectedStatus, setEmptySearch, setSelectedStatus, date, handleAddEventData, isFilterApplied, appointmentFiltersData, setMainLoader, isFilterDataLoading, loadMoreAppointment, filters, selectedFilterList, setSelectedVisitType, setSelectedScreening, setSelectedProviders, setAnchorEl, anchorEl, selectedVisitType, selectedScreening, selectedProviders, resetFilters, getFilterDetail, selectedSavedFilterUuid, setIsFilterApplied } = props;
   const { patient_screening, provider, visit_type } = appointmentFiltersData || {};
 
   const label = { inputProps: { "aria-label": "Checkbox demo" } };
@@ -166,11 +167,16 @@ function FilterButton(props: any) {
 
 
   const createFilter = (isEdit: boolean = false) => {
+
+    const formattedDates = DateFormatter(date , date);
+
     const payload = {
       filter_name: filterName,
       visit_type: selectedVisitType,
       screening: selectedScreening,
-      provider: selectedProviders
+      provider: selectedProviders,
+      appointment_start_date: formattedDates.start,
+      appointment_end_date: formattedDates.end,
     };
 
     if (isEdit) {
@@ -209,12 +215,18 @@ function FilterButton(props: any) {
   const updateFilters = () => {
     let status = selectedStatus === "Cancelled" ? true : false;
 
+    const formattedDates = DateFormatter(date , date);
+
     const payload = {
+      filter_name: filterName,
       visit_type: selectedVisitType,
       screening: selectedScreening,
       provider: selectedProviders,
-      show_cancelled_appointments: status
+      appointment_start_date: formattedDates.start,
+      appointment_end_date: formattedDates.end,
     };
+
+
     dispatch(updateAppointmentFilter({ action: payload, uuid: selectedFilterDetail?.uuid })).then((e) => {
       if (e?.payload) {
         setIsSavedFilterSettingClicked(false);
@@ -222,7 +234,7 @@ function FilterButton(props: any) {
         setIsModalOpen(false);
         setEmptySearch(true);
         dispatch(getSelectedFilterList());
-        resetFilters(true);
+        resetFilters(true, true);
       }
     });
   }
