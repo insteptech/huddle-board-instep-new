@@ -540,15 +540,16 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     };
 
     setStatus();
-    setMainLoader(true);
+    
     setSelectedStatus(null);
     dispatch(updateFilter(filtersData));
-    dispatch(emptyAppointmentList());
+    
     // loadMoreAppointment(filtersData, "FRONTEND_FILTER_CLICK_FILTER_RESET");
     setPatientNameSearch('');
     setCompletedActions(false);
     setZeroScreenings(false);
     setSelectedSavedFilterUuid('');
+
     if(isUpdateFilter === true) {
       setSelectedVisitType(selectedVisitType);
     setSelectedScreening(selectedScreening);
@@ -556,6 +557,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     }
 
     else{
+       dispatch(emptyAppointmentList());
+      setMainLoader(true);
       setSelectedVisitType([]);
       setSelectedScreening([]);
       setSelectedProviders([])
