@@ -8,6 +8,8 @@
     "start:staging": "env-cmd -f .env.staging next start",
     "build:production": "env-cmd -f .env.production next build",
     "start:production": "env-cmd -f .env.production next start",
+    "build:qa": "env-cmd -f .env.qa next build",
+    "start:qa": "env-cmd -f .env.qa next start",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
