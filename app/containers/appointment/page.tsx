@@ -103,6 +103,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   const [isAppointmentTimeSortAscending, setIsAppointmentTimeSortAscending] = useState(false);
   const [isPatientNameSortAscending, setIsPatientNameSortAscending] = useState(false);
   const [loaderAppoint, setLoaderAppoint] = useState<any>(false);
+  const [loaderAppoint1, setLoaderAppoint1] = useState<any>(false);
   const [mainLoader, setMainLoader] = useState<any>(true);
   const [confirmationModal, setConfirmationModal] = useState(false);
   const [reverseModal, setReverseModal] = useState(false);
@@ -388,7 +389,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   }
 
   const updateOutCome = (value: any, data: any, detail: any) => {
-    setMainLoader(true);
+    setLoaderAppoint1(true);
     const { appointment_id, uuid } = detail;
     const payload = {
       appointment_id: appointment_id,
@@ -448,10 +449,9 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       setLoaderAppoint(true);
       handleAddEventData("FRONTEND_TILE_CLICK_ACTION", `FRONTEND_TILE_CLICK_ACTION${value}`, `FRONTEND_TILE_CLICK_ACTION${value}`)
       dispatch(getAppointmentDetail({ appointment_id: res?.meta?.arg?.appointment_id })).then((res: any) => {
-        setMainLoader(false);
-        
         dispatch(getAppointmentDetailMulti({ appointment_id: res?.meta?.arg?.appointment_id })).then((res) => {
-          
+          setLoaderAppoint1(false);
+
         })
         // dispatch(getAppointmentsList(filters)).then(()=>{
         //   console.log("Consoled")
@@ -466,7 +466,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       dispatch(getAllAppointments(payload));
 
     }).catch(() => {
-      ;
+      setLoaderAppoint1(false);
 
       handleAddEventData("FRONTEND_TILE_CLICK_ACTION", `FRONTEND_TILE_CLICK_ACTION${value}`, `FRONTEND_TILE_CLICK_ACTION${value}`)
     })
@@ -554,7 +554,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     setCompletedActions(false);
     setZeroScreenings(false);
     setSelectedSavedFilterUuid('');
- 
+
     if (isUpdateFilter === true) {
       setSelectedVisitType(selectedVisitType);
       setSelectedScreening(selectedScreening);
@@ -1081,7 +1081,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
                 </Table_Head>
                 <TableBody>
                   {
-                    (mainLoader && appointmentsList.length !==0)
+                    (mainLoader && appointmentsList.length !== 0)
                       ?
                       <TableRow>
                         <TableMidData style={{ border: "none", backgroundColor: "white" }} colSpan={12} >
@@ -1091,7 +1091,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
                           </LoaderBox>
                         </TableMidData>
                       </TableRow>
-                      : 
+                      :
                       <PatientNotFound appointmentsList={appointmentsList} completedActions={completedActions} zeroScreenings={zeroScreenings} emptySearch={emptySearch} isFilterApplied={isFilterApplied} searchTerm={patientNameSearch} icon={isFilterApplied} resetFilters={resetFilters} />
                   }
                 </TableBody>
@@ -1100,7 +1100,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
           )}
 
           {!isPatientNotFound && !isClearFilter && (
-            <TableMainContainer sx={{ height: windowHeight - 250 }}>
+            <TableMainContainer sx={{ height: appointmentsList.length === 0 ?  'unset'  : windowHeight - 250 }}>
               <Table sx={{
                 '.mui-799qhl-MuiTableCell-root': {
                   border: "none !important"
@@ -1127,7 +1127,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
                     <>
                       <ShimmerTable />
                     </>
-                  ) : (appointmentsList.length > 0 && !mainLoader) ? (
+                  ) : (appointmentsList.length > 0) ? (
                     <TableBody>
                       {appointmentsList.map((appointment: AppointmentState, index: number) => (
                         <>
@@ -1265,17 +1265,28 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
                             ></TableCell>
                           </TableRow>
                         </>
-                      ) : 
-                      null
+                      ) :
+                        null
                       }
                     </TableBody>
-                  ) : 
-                  <TableBody>
+                  ) : <TableBody>
+                    {
+                      !loaderAppoint1 ?
+                        <PatientNotFound appointmentsList={appointmentsList} completedActions={completedActions} zeroScreenings={zeroScreenings} emptySearch={emptySearch} isFilterApplied={isFilterApplied} searchTerm={patientNameSearch} icon={isFilterApplied} resetFilters={resetFilters} />
+                        :
+                        <TableRow>
+                          <TableCell rowSpan={6} colSpan={6}>  <div style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            height: "500px"
+                          }}>
+                            <CircularProgress /></div></TableCell>
+                        </TableRow>
 
-                  <PatientNotFound appointmentsList={appointmentsList} completedActions={completedActions} zeroScreenings={zeroScreenings} emptySearch={emptySearch} isFilterApplied={isFilterApplied} searchTerm={patientNameSearch} icon={isFilterApplied} resetFilters={resetFilters} />
-                  
+                    }
                   </TableBody>
-                  }
+                }
 
               </Table>
               <div><h6 ref={ref} style={{ textAlign: "center", visibility: "hidden", height: "1px" }} ></h6></div>

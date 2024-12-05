@@ -168,7 +168,7 @@ function FilterButton(props: any) {
 
   const createFilter = (isEdit: boolean = false) => {
 
-    const formattedDates = DateFormatter(date , date);
+    const formattedDates = DateFormatter(date, date);
 
     const payload = {
       filter_name: filterName,
@@ -215,7 +215,7 @@ function FilterButton(props: any) {
   const updateFilters = () => {
     let status = selectedStatus === "Cancelled" ? true : false;
 
-    const formattedDates = DateFormatter(date , date);
+    const formattedDates = DateFormatter(date, date);
 
     const payload = {
       filter_name: filterName,
@@ -282,7 +282,8 @@ function FilterButton(props: any) {
     }
   }, [selectedFilterList]);
 
-  const selectSavedFilter = (list: any) => {
+  const selectSavedFilter = (event: any, list: any) => {
+    event.stopPropagation();
     onRadioButtonClick(list);
     getFilterDetail(list)
   }
@@ -369,13 +370,57 @@ function FilterButton(props: any) {
                               className='radio_sec'
                             >
                               {selectedFilterList?.map((list: any, index: number) => (
-                                <FormControlLabel sx={{textAlign:"left", 
-                                  wordWrap: "break-word", // Allow wrapping of long words
-                                  wordBreak: "break-word", // Break long words if necessary
-                                  whiteSpace: "normal", // Ensure text wraps and does not overflow
+                                <FormControlLabel
+                                  sx={{
+                                    textAlign: "left",
+                                    wordWrap: "break-word", // Allow wrapping of long words
+                                    wordBreak: "break-word", // Break long words if necessary
+                                    whiteSpace: "normal", // Ensure text wraps and does not overflow
+                                  }}
+                                  onClick={(event) => {
+                                    // Typecast event target to an HTML element to access the 'type' property
+                                    const target = event.target as HTMLInputElement;
 
-                                }} onClick={() => { selectSavedFilter(list) }} key={index} className={selectedSavedFilterUuid === list.uuid ? 'radio_sec_inner selectedSavedFilter' : 'radio_sec_inner'} value={list.uuid} control={isSavedFilterSettingClicked ? <Radio onClick={() => selectSavedFilter(list)} checked={selectedSavedFilterUuid === list.uuid} /> : <List />} label={list.name} />
+                                    // Only call `selectSavedFilter` when the clicked target is not the radio button
+                                    if (target.type !== 'radio') {
+                                      selectSavedFilter(event, list);
+                                    }
+                                  }}
+                                  key={index}
+                                  className={
+                                    selectedSavedFilterUuid === list.uuid
+                                      ? 'radio_sec_inner selectedSavedFilter'
+                                      : 'radio_sec_inner'
+                                  }
+                                  value={list.uuid}
+                                  control={
+                                    isSavedFilterSettingClicked ? (
+                                      <Radio
+                                        checked={selectedSavedFilterUuid === list.uuid}
+                                        onClick={(event) => {
+                                          event.stopPropagation(); // Stop the click from propagating to the parent
+                                          selectSavedFilter(event, list); // Trigger the selection of the radio button
+                                        }}
+                                      />
+                                    ) : (
+                                      <List />
+                                    )
+                                  }
+                                  label={
+                                    <span
+                                      onClick={(event) => {
+                                        event.preventDefault(); // Prevent the label click from triggering form behavior
+                                      }}
+                                    >
+                                      {list.name}
+                                    </span>
+                                  }
+                                />
                               ))}
+
+
+
+
                             </RadioGroup>
                           </RadioMain>
 
@@ -448,14 +493,14 @@ function FilterButton(props: any) {
                           </TableCellHd>
 
                           {statusKeys.map((pro: any, index: number) => (
-                            <TableCellTd sx={{padding:"0 !important" }} key={index}>
+                            <TableCellTd sx={{ padding: "0 !important" }} key={index}>
                               <label>
                                 <Radio
                                   key={index}
-                                  sx={{ "& .MuiSvgIcon-root": { fontSize: 16 , } }}
+                                  sx={{ "& .MuiSvgIcon-root": { fontSize: 16, } }}
                                   onClick={() => handleStatusSelection(pro)}
                                   checked={
-                                    selectedStatus === pro.name || 
+                                    selectedStatus === pro.name ||
                                     (selectedStatus == null && pro.name === "Not Cancelled")
                                   }
                                 />
