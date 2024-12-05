@@ -201,7 +201,7 @@ const Row = (props: any) => {
                                     <BorderLinearProgress sx={{ minWidth: "40px", maxWidth: "80px" }} variant="determinate" value={(appointment?.selected_gap_count / appointment?.gap_count) * 100} />
                                 </Stack>
                                 <ProviderCell>{`${selectedAppointmentGap || appointment?.selected_gap_count}/${appointment?.gap_count}`}</ProviderCell>
-                                <IconButton aria-label="expand appointment" size="small" onClick={() => setRow(appointment?.uuid, appointment?.selected_gap_count)}>
+                                <IconButton aria-label="expand appointment" size="small">
                                     {(open && selectedAppointmentUuid === appointment?.uuid || expand) ? <><Tooltip title="Collapse" placement="top"><KeyboardArrowUpIcon sx={{
                                         color: 'black',
                                         border: '1px solid black',

@@ -22,7 +22,7 @@ const PatientNotFound = (props: any) => {
     objectFit: "contain",
   };
 
-  const { icon, completedActions ,zeroScreenings, resetFilters, searchTerm, isFilterApplied, emptySearch } = props;
+  const { icon, completedActions, appointmentsList ,zeroScreenings, resetFilters, searchTerm, isFilterApplied, emptySearch } = props;
 
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
@@ -119,7 +119,8 @@ const PatientNotFound = (props: any) => {
             </StyledTableCenter>
           </TableRow>
           </>
-        )}
+        )
+        }
     </>
   );
 };

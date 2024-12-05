@@ -18,7 +18,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import ArrowUpwardOutlinedIcon from '@mui/icons-material/ArrowUpwardOutlined';
 import arrowLeft from "../../images/leftarrow.svg"
 import arrowRight from "../../images/rightarrow.svg"
-import { ExpendSection, HideShow, LoaderBox } from '../../styles/customStyle';
+import { ExpendSection, HideShow, LoaderBox, MainBox, MainBoxHeading, StyledTableCenter } from '../../styles/customStyle';
 import pdfIcon from "../../images/pdficon.svg";
 import moment from 'moment-timezone';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -41,7 +41,7 @@ import {
   SearchClearIcon,
   TableMidData
 } from '../../styles/customStyle';
-
+import Image2 from "../../images/no_appointment.png";
 import { AppointmentState, FiltersDataState, emptyAppointmentList, emptySelectedFilter, updateFilter } from '@/app/redux/slices/appointment';
 import { Box, Container, Input, InputAdornment, CircularProgress, Typography, FormControlLabel, Checkbox, FormGroup, Button, TableCell, Skeleton } from '@mui/material';
 import PatientNotFound from '@/app/components/patientNotFound';
@@ -58,6 +58,7 @@ import { max } from 'date-fns';
 import { FaCheckCircle } from 'react-icons/fa';  // for success icon
 import Shimmer from '@/app/components/shimmerEffect';
 import ShimmerTable from '@/app/components/shimmerEffect';
+import Image from 'next/image';
 
 const Row = dynamic(() => import('@/app/components/tableRow/index').then((mod) => mod), {
   ssr: false,
@@ -387,6 +388,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   }
 
   const updateOutCome = (value: any, data: any, detail: any) => {
+    setMainLoader(true);
     const { appointment_id, uuid } = detail;
     const payload = {
       appointment_id: appointment_id,
@@ -444,9 +446,12 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       );
       appointmentDetails(appointment_id);
       setLoaderAppoint(true);
-      handleAddEventData("FRONTEND_TILE_CLICK_ACTION", `FRONTEND_TILE_CLICK_ACTION${value}`, `FRONTEND_TILE_CLICK_ACTION${value}`)      
+      handleAddEventData("FRONTEND_TILE_CLICK_ACTION", `FRONTEND_TILE_CLICK_ACTION${value}`, `FRONTEND_TILE_CLICK_ACTION${value}`)
       dispatch(getAppointmentDetail({ appointment_id: res?.meta?.arg?.appointment_id })).then((res: any) => {
+        setMainLoader(false);
+        
         dispatch(getAppointmentDetailMulti({ appointment_id: res?.meta?.arg?.appointment_id })).then((res) => {
+          
         })
         // dispatch(getAppointmentsList(filters)).then(()=>{
         //   console.log("Consoled")
@@ -520,7 +525,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     setSelectedStatus("Not Cancelled");
   }
 
-  const resetFilters = (isFilterPopOpen: boolean = false, isUpdateFilter? : boolean) => {
+  const resetFilters = (isFilterPopOpen: boolean = false, isUpdateFilter?: boolean) => {
 
     const timezone: string = "US/Pacific";
     const formattedDatess = DateFormatter(date, date);
@@ -540,24 +545,24 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     };
 
     setStatus();
-    
+
     setSelectedStatus(null);
     dispatch(updateFilter(filtersData));
-    
+
     // loadMoreAppointment(filtersData, "FRONTEND_FILTER_CLICK_FILTER_RESET");
     setPatientNameSearch('');
     setCompletedActions(false);
     setZeroScreenings(false);
     setSelectedSavedFilterUuid('');
-
-    if(isUpdateFilter === true) {
+ 
+    if (isUpdateFilter === true) {
       setSelectedVisitType(selectedVisitType);
-    setSelectedScreening(selectedScreening);
-    setSelectedProviders(selectedProviders)
+      setSelectedScreening(selectedScreening);
+      setSelectedProviders(selectedProviders)
     }
 
-    else{
-       dispatch(emptyAppointmentList());
+    else {
+      dispatch(emptyAppointmentList());
       setMainLoader(true);
       setSelectedVisitType([]);
       setSelectedScreening([]);
@@ -850,9 +855,34 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   }, [inView])
 
 
+  useEffect(() => {
+
+    if (appointmentsList.length === 0) {
+      // window.location.reload();
+    }
+  }, [appointmentsList])
+
+
   const [emptySearch, setEmptySearch] = useState(false);
 
   const columns = ["Appt Time", "Patient Name", "Type of Visit", "Clinician", "Screening", "Action"];
+
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <>
@@ -1051,7 +1081,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
                 </Table_Head>
                 <TableBody>
                   {
-                    mainLoader
+                    (mainLoader && appointmentsList.length !==0)
                       ?
                       <TableRow>
                         <TableMidData style={{ border: "none", backgroundColor: "white" }} colSpan={12} >
@@ -1061,7 +1091,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
                           </LoaderBox>
                         </TableMidData>
                       </TableRow>
-                      : <PatientNotFound completedActions={completedActions} zeroScreenings={zeroScreenings} emptySearch={emptySearch} isFilterApplied={isFilterApplied} searchTerm={patientNameSearch} icon={isFilterApplied} resetFilters={resetFilters} />
+                      : 
+                      <PatientNotFound appointmentsList={appointmentsList} completedActions={completedActions} zeroScreenings={zeroScreenings} emptySearch={emptySearch} isFilterApplied={isFilterApplied} searchTerm={patientNameSearch} icon={isFilterApplied} resetFilters={resetFilters} />
                   }
                 </TableBody>
               </Table>
@@ -1092,103 +1123,160 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
                   </TableRow>
                 </Table_Head>
                 {
-                  mainLoader ?
+                  mainLoader ? (
                     <>
                       <ShimmerTable />
                     </>
+                  ) : (appointmentsList.length > 0 && !mainLoader) ? (
+                    <TableBody>
+                      {appointmentsList.map((appointment: AppointmentState, index: number) => (
+                        <>
+                          <TableRow>
+                            <TableCell
+                              style={{
+                                height: '10px',
+                                backgroundColor: '#F3F7FC',
+                                padding: 0,
+                                border: 'none',
+                              }}
+                            ></TableCell>
+                            <TableCell
+                              style={{
+                                height: '10px',
+                                backgroundColor: '#F3F7FC',
+                                padding: 0,
+                                border: 'none',
+                              }}
+                            ></TableCell>
+                            <TableCell
+                              style={{
+                                height: '10px',
+                                backgroundColor: '#F3F7FC',
+                                padding: 0,
+                                border: 'none',
+                              }}
+                            ></TableCell>
+                            <TableCell
+                              style={{
+                                height: '10px',
+                                backgroundColor: '#F3F7FC',
+                                padding: 0,
+                                border: 'none',
+                              }}
+                            ></TableCell>
+                            <TableCell
+                              style={{
+                                height: '10px',
+                                backgroundColor: '#F3F7FC',
+                                padding: 0,
+                                border: 'none',
+                              }}
+                            ></TableCell>
+                            <TableCell
+                              style={{
+                                height: '10px',
+                                backgroundColor: '#F3F7FC',
+                                padding: 0,
+                                border: 'none',
+                              }}
+                            ></TableCell>
+                          </TableRow>
 
-                    : <TableBody>
-                      {appointmentsList.map(
-                        (appointment: AppointmentState, index: number) => (
-                          <>
+                          <Row
+                            newbuttonState={newbuttonState}
+                            appointmentsList={appointmentsList}
+                            firstElementRef={firstElementRef}
+                            id={appointmentsList[0]?.uuid}
+                            expand={index < valueNum * 10 ? expand : false}
+                            setExpand={setExpand}
+                            key={index}
+                            appointment={appointment}
+                            selectedAppointmentUuid={selectedAppointmentUuid}
+                            setSelectedAppointmentUuid={setSelectedAppointmentUuid}
+                            appointmentDetail={appointmentDetail}
+                            appointmentDetailMulti={appointmentDetailMulti}
+                            appointmentDetails={appointmentDetails}
+                            updateOutCome={updateOutCome}
+                            isDetailLoading={isDetailLoading}
+                            setLoaderAppoint={setLoaderAppoint}
+                            loaderAppoint={loaderAppoint}
+                            updateButtonState={updateButtonState}
+                            confirmationModal={confirmationModal}
+                            reverseModal={reverseModal}
+                            setConfirmationModal={setConfirmationModal}
+                            setReverseModal={setReverseModal}
+                            actionValue={actionValue}
+                            setSelectedAppointmentGap={setSelectedAppointmentGap}
+                            selectedAppointmentGap={selectedAppointmentGap}
+                          />
+                        </>
+                      ))}
 
-                            <TableRow >
-                              <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                              <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                              <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                              <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                              <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                              <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                            </TableRow>
-                            <Row
-
-                              newbuttonState={newbuttonState}
-                              appointmentsList={appointmentsList}
-                              firstElementRef={firstElementRef}
-                              id={appointmentsList[0]?.uuid}
-                              expand={index < (valueNum * 10) ? expand : false}
-                              setExpand={setExpand}
-                              key={index}
-                              appointment={appointment}
-                              selectedAppointmentUuid={selectedAppointmentUuid}
-                              setSelectedAppointmentUuid={setSelectedAppointmentUuid}
-                              appointmentDetail={appointmentDetail}
-                              appointmentDetailMulti={appointmentDetailMulti}
-                              appointmentDetails={appointmentDetails}
-                              updateOutCome={updateOutCome}
-                              isDetailLoading={isDetailLoading}
-                              setLoaderAppoint={setLoaderAppoint}
-                              loaderAppoint={loaderAppoint}
-                              updateButtonState={updateButtonState}
-                              confirmationModal={confirmationModal}
-                              reverseModal={reverseModal}
-                              setConfirmationModal={setConfirmationModal}
-                              setReverseModal={setReverseModal}
-                              actionValue={actionValue}
-                              setSelectedAppointmentGap={setSelectedAppointmentGap}
-                              selectedAppointmentGap={selectedAppointmentGap}
-                            />
-
-                          </>
-                        )
-                      )}
-                      {
-                        (appointmentsList.length < getMoreAppointment) ?
-
-                          <>
-                            <TableRow >
-                              <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                              <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                              <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                              <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                              <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                              <TableCell style={{ height: '10px', backgroundColor: '#F3F7FC', padding: 0, border: 'none' }}></TableCell>
-                            </TableRow>
-
-                            {/* {Array.from({ length: blurLength }).map((_, rowIndex) => (
-                              <TableRow key={rowIndex} sx={{ backgroundColor: "white", mb: 2 }}>
-                                {columns.map((_, cellIndex) => (
-                                  <TableCell
-                                    key={cellIndex}
-                                    sx={{
-                                      backgroundColor: 'white',
-                                      border: 'none',
-                                      textAlign: 'center',
-                                      width: '150px', // Consistent width for all cells
-                                      padding: 2, // Consistent padding for all cells
-                                    }}
-                                  >
-                                    <Skeleton
-                                      variant="rectangular"
-                                      animation="wave"
-                                      height={28}
-                                      width="90%"
-                                      style={{
-                                        borderRadius: 1, margin: 2,
-                                        background: 'linear-gradient(90deg, #F0EBEB 0%, #E2E2E2 29.61%, #EBEBEB 62.23%, #F7F7F7 100%)',
-                                        animation: 'shimmer 1.5s infinite ease-in-out'
-                                      }} // Center within the cell
-                                    />
-                                  </TableCell>
-                                ))}
-                              </TableRow>
-                            ))} */}
-
-                          </> : null
+                      {appointmentsList.length < getMoreAppointment ? (
+                        <>
+                          <TableRow>
+                            <TableCell
+                              style={{
+                                height: '10px',
+                                backgroundColor: '#F3F7FC',
+                                padding: 0,
+                                border: 'none',
+                              }}
+                            ></TableCell>
+                            <TableCell
+                              style={{
+                                height: '10px',
+                                backgroundColor: '#F3F7FC',
+                                padding: 0,
+                                border: 'none',
+                              }}
+                            ></TableCell>
+                            <TableCell
+                              style={{
+                                height: '10px',
+                                backgroundColor: '#F3F7FC',
+                                padding: 0,
+                                border: 'none',
+                              }}
+                            ></TableCell>
+                            <TableCell
+                              style={{
+                                height: '10px',
+                                backgroundColor: '#F3F7FC',
+                                padding: 0,
+                                border: 'none',
+                              }}
+                            ></TableCell>
+                            <TableCell
+                              style={{
+                                height: '10px',
+                                backgroundColor: '#F3F7FC',
+                                padding: 0,
+                                border: 'none',
+                              }}
+                            ></TableCell>
+                            <TableCell
+                              style={{
+                                height: '10px',
+                                backgroundColor: '#F3F7FC',
+                                padding: 0,
+                                border: 'none',
+                              }}
+                            ></TableCell>
+                          </TableRow>
+                        </>
+                      ) : 
+                      null
                       }
                     </TableBody>
+                  ) : 
+                  <TableBody>
 
-                }
+                  <PatientNotFound appointmentsList={appointmentsList} completedActions={completedActions} zeroScreenings={zeroScreenings} emptySearch={emptySearch} isFilterApplied={isFilterApplied} searchTerm={patientNameSearch} icon={isFilterApplied} resetFilters={resetFilters} />
+                  
+                  </TableBody>
+                  }
+
               </Table>
               <div><h6 ref={ref} style={{ textAlign: "center", visibility: "hidden", height: "1px" }} ></h6></div>
             </TableMainContainer>
@@ -1203,7 +1291,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
           )} */}
 
         </TableDiv>
-      </Container>
+      </Container >
 
       <IdleModal isSlug={isSlug} idleTime={idleTime} idleTimeEnv={idleTimeEnv} setIdleTime={setIdleTime} idleModalOpen={idleModalOpen} setIdleModalOpen={setIdleModalOpen} />
     </>
