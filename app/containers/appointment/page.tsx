@@ -84,6 +84,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
 
   const dispatch = useDispatch<AppDispatch>();
   const appointmentsList = useSelector((state: AppState) => state.appointment?.appointmentsData?.results) || [];
+  const allappointments = useSelector((state: AppState) => state.appointment?.appointmentsData) || [];
   const appointmentDetail = useSelector((state: AppState) => state.appointment?.appointmentDetail) || [];
   const appointmentDetailMulti = useSelector((state: AppState) => state.appointment?.appointmentDetailMulti) || [];
   const isNextAppointmentsList = useSelector((state: AppState) => state.appointment?.appointmentsData?.next);
@@ -97,22 +98,19 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   const [selectedVisitType, setSelectedVisitType] = useState<any>(filters.visit_types || []);
   const [selectedScreening, setSelectedScreening] = useState<any>(filters.screening || []);
   const [selectedProviders, setSelectedProviders] = useState<any>(filters.providers_uuids || []);
+  const [cancelledStatus, setCancelledStatus] = useState<any>(filters.hide_complete_appointments);
   const [selectedAppointmentUuid, setSelectedAppointmentUuid] = useState<string>('');
   const [selectedAppointmentGap, setSelectedAppointmentGap] = useState<number>();
   const [selectedSavedFilterUuid, setSelectedSavedFilterUuid] = useState<string>('');
   const [isAppointmentTimeSortAscending, setIsAppointmentTimeSortAscending] = useState(false);
   const [isPatientNameSortAscending, setIsPatientNameSortAscending] = useState(false);
   const [loaderAppoint, setLoaderAppoint] = useState<any>(false);
-  const [loaderAppoint1, setLoaderAppoint1] = useState<any>(false);
+  const [loaderAppoint1, setLoaderAppoint1] = useState<any>(true);
   const [mainLoader, setMainLoader] = useState<any>(true);
   const [confirmationModal, setConfirmationModal] = useState(false);
   const [reverseModal, setReverseModal] = useState(false);
   const [idleModalOpen, setIdleModalOpen] = useState(false);
-  const [actionValue, setActionValue] = useState({
-    value: "",
-    data: "",
-    detail: {}
-  })
+
   const [selectedStatus, setSelectedStatus] = useState<string | null>("Not Cancelled");
   const [idleTimeEnv, setIdleTimeEnv] = useState(15);
   const [completedActions, setCompletedActions] = useState(false);
@@ -302,9 +300,9 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
 
     dispatch(getAppointmentsList(payload))
       .then((response: any) => {
+
         setIsPatientNotFound(false);
-        dispatch(updateFilter({ page: Number(page) + 1 }));
-        setMainLoader(false);
+        dispatch(updateFilter({ page: Number(page) + 1 }));        
         if (response?.payload?.results.length === 0) {
           setIsClearFilter(true);
 
@@ -314,7 +312,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       })
       .catch((error) => {
         setMainLoader(false);
-
+        setLoaderAppoint1(false);
         console.error("An error occurred while fetching appointments:", error);
         window.location.href = "/auth/login"
       });
@@ -358,37 +356,9 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     }
   };
 
-  const [newbuttonState, setNewButtonState] = useState(true)
 
-  const updateButtonState = (value: any, data: any, detail: any) => {
+  const updateOutCome = (value: any, data: any, detail: any , multi:boolean) => {
 
-    setNewButtonState(!newbuttonState)
-    if (data == "disable") {
-      toast.error("cannot select")
-      return;
-    }
-
-    if (data == "enable") {
-      setReverseModal(false)
-      setActionValue({
-        value: value,
-        data: data,
-        detail: detail
-      })
-    }
-    if (data == "active") {
-      setReverseModal(true)
-      setActionValue({
-        value: value,
-        data: data,
-        detail: detail
-      })
-    }
-
-    updateOutCome(value, data, detail);
-  }
-
-  const updateOutCome = (value: any, data: any, detail: any) => {
     setLoaderAppoint1(true);
     const { appointment_id, uuid } = detail;
     const payload = {
@@ -445,18 +415,27 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
           }
         }
       );
-      appointmentDetails(appointment_id);
+      
       setLoaderAppoint(true);
       handleAddEventData("FRONTEND_TILE_CLICK_ACTION", `FRONTEND_TILE_CLICK_ACTION${value}`, `FRONTEND_TILE_CLICK_ACTION${value}`)
-      dispatch(getAppointmentDetail({ appointment_id: res?.meta?.arg?.appointment_id })).then((res: any) => {
+       
+
+      
+
+      if(multi === true){
         dispatch(getAppointmentDetailMulti({ appointment_id: res?.meta?.arg?.appointment_id })).then((res) => {
           setLoaderAppoint1(false);
+          setLoaderAppoint(false);
+
 
         })
-        // dispatch(getAppointmentsList(filters)).then(()=>{
-        //   console.log("Consoled")
-        // });
-      })
+      }
+
+      else{
+        appointmentDetails(appointment_id);
+        setLoaderAppoint1(false);
+      }
+     
       const formattedDates = formatDates(filters.appointment_start_date, filters.appointment_end_date);
       const payload = {
         ...filters,
@@ -471,6 +450,10 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       handleAddEventData("FRONTEND_TILE_CLICK_ACTION", `FRONTEND_TILE_CLICK_ACTION${value}`, `FRONTEND_TILE_CLICK_ACTION${value}`)
     })
   }
+
+
+
+  // PDF Handle Function
 
   const handlePdf = () => {
     const timezone = "US/Pacific";
@@ -558,7 +541,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     if (isUpdateFilter === true) {
       setSelectedVisitType(selectedVisitType);
       setSelectedScreening(selectedScreening);
-      setSelectedProviders(selectedProviders)
+      setSelectedProviders(selectedProviders);
+      setCancelledStatus(cancelledStatus);
     }
 
     else {
@@ -566,7 +550,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       setMainLoader(true);
       setSelectedVisitType([]);
       setSelectedScreening([]);
-      setSelectedProviders([])
+      setSelectedProviders([]);
+      setCancelledStatus(false);
     }
 
     if (!isFilterPopOpen) {
@@ -657,6 +642,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
 
     setSelectedSavedFilterUuid(filter.uuid);
     dispatch(getSelectedFilterDetail(filter.uuid)).then((response: any) => {
+
       const { payload } = response || {};
       if (!payload) return;
 
@@ -668,9 +654,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         page: 1,
         page_size: 10,
         patient_name: '',
-
       };
-
+      setCancelledStatus(payload.show_cancelled_appointment)
       setSelectedVisitType(payload.visit_type);
       setSelectedScreening(payload.screening);
       setSelectedProviders(payload.providers);
@@ -742,6 +727,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   }
 
   const handleCalenderButtonClick = (direction: string) => {
+    setHasRunOnceCount(0);
     const appointmentsListString = localStorage.getItem('huddleBoardConfig');
     if (!appointmentsListString) return;
     const { past_calendar_days_count, future_calender_days_count } = JSON.parse(appointmentsListString);
@@ -827,6 +813,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   let dispatchedUUIDs: any = [];
 
   const firstElementRef = useRef<any>(null);
+
   const expandedValues = (value: boolean) => {
     setLoaderAppoint(true);
     setExpand(value);
@@ -845,11 +832,25 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       }
 
     }
+
+    else{
+      // setLoaderAppoint(true);
+    }
     setValueNum(valueNum + 1);
   }
 
+const [hasRunOnceCount , setHasRunOnceCount] = useState(0);
+
   useEffect(() => {
-    if (inView) {
+
+    if(hasRunOnceCount> 2){
+      return;
+    }
+
+    if (appointmentsList.length === allappointments?.count) {
+      setHasRunOnceCount(hasRunOnceCount + 1)
+    }
+    if (inView ) {
       expandedValues(expand);
     }
   }, [inView])
@@ -967,6 +968,8 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
                   setSelectedVisitType={setSelectedVisitType}
                   setSelectedScreening={setSelectedScreening}
                   setSelectedProviders={setSelectedProviders}
+                  cancelledStatus={cancelledStatus}
+                  setCancelledStatus={setCancelledStatus}
                   setAnchorEl={setAnchorEl}
                   anchorEl={anchorEl}
                   selectedVisitType={selectedVisitType}
@@ -1100,7 +1103,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
           )}
 
           {!isPatientNotFound && !isClearFilter && (
-            <TableMainContainer sx={{ height: appointmentsList.length === 0 ?  'unset'  : windowHeight - 250 }}>
+            <TableMainContainer sx={{ height: appointmentsList.length === 0 ? 'unset' : windowHeight - 250 }}>
               <Table sx={{
                 '.mui-799qhl-MuiTableCell-root': {
                   border: "none !important"
@@ -1183,7 +1186,6 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
                           </TableRow>
 
                           <Row
-                            newbuttonState={newbuttonState}
                             appointmentsList={appointmentsList}
                             firstElementRef={firstElementRef}
                             id={appointmentsList[0]?.uuid}
@@ -1200,12 +1202,11 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
                             isDetailLoading={isDetailLoading}
                             setLoaderAppoint={setLoaderAppoint}
                             loaderAppoint={loaderAppoint}
-                            updateButtonState={updateButtonState}
                             confirmationModal={confirmationModal}
                             reverseModal={reverseModal}
                             setConfirmationModal={setConfirmationModal}
                             setReverseModal={setReverseModal}
-                            actionValue={actionValue}
+                            // actionValue={actionValue}
                             setSelectedAppointmentGap={setSelectedAppointmentGap}
                             selectedAppointmentGap={selectedAppointmentGap}
                           />
@@ -1269,23 +1270,15 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
                         null
                       }
                     </TableBody>
-                  ) : <TableBody>
+                  ) : <>
                     {
                       !loaderAppoint1 ?
                         <PatientNotFound appointmentsList={appointmentsList} completedActions={completedActions} zeroScreenings={zeroScreenings} emptySearch={emptySearch} isFilterApplied={isFilterApplied} searchTerm={patientNameSearch} icon={isFilterApplied} resetFilters={resetFilters} />
                         :
-                        <TableRow>
-                          <TableCell rowSpan={6} colSpan={6}>  <div style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            height: "500px"
-                          }}>
-                            <CircularProgress /></div></TableCell>
-                        </TableRow>
+                        <ShimmerTable />
 
                     }
-                  </TableBody>
+                  </>
                 }
 
               </Table>

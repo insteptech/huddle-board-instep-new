@@ -1,5 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import Box from '@mui/material/Box';
 import {
     Stack,
@@ -70,18 +71,12 @@ function GetScreening({ screening }: { screening: string[] }) {
 
 
 const Row = (props: any) => {
-    const { appointment,appointmentDetailMulti, appointmentsList, newbuttonState, selectedAppointmentUuid, firstElementRef, id, expand, selectedAppointmentGap, setExpand, setSelectedAppointmentGap, loaderAppoint, setSelectedAppointmentUuid, reverseModal, updateButtonState, setReverseModal, setLoaderAppoint, appointmentDetails, appointmentDetail, updateOutCome, isDetailLoading, confirmationModal, setConfirmationModal, actionValue } = props;
+    const { appointment, updateOutCome , appointmentDetailMulti, selectedAppointmentUuid, firstElementRef, id, expand, selectedAppointmentGap, setExpand, setSelectedAppointmentGap, loaderAppoint, setSelectedAppointmentUuid, updateButtonState, setReverseModal, setLoaderAppoint, appointmentDetails, appointmentDetail } = props;
     const [open, setOpen] = useState(false);
     const [isCopied, setIsCopied] = useState(false);
     const dispatch = useDispatch<AppDispatch>();
     const [copyMrnRow, setCopyMrnRow] = useState(false);
 
-    useEffect(() => {
-     
-
-
-
-    }, [expand, appointmentDetailMulti]);
 
     const copyMrn = (mrn: any, event: any) => {
         event.stopPropagation();
@@ -91,22 +86,19 @@ const Row = (props: any) => {
 
     }
 
-    const setRow = (id: any, gap?: number) => {
+    const setRow = (event: any, id: any, gap?: number) => {
+        event.stopPropagation();
+    
         if (id === null && gap === 0) {
-            return
+            return;
         }
+    
         setLoaderAppoint(true);
         setSelectedAppointmentUuid(id);
         appointmentDetails(id);
         setSelectedAppointmentGap(gap);
         setOpen(!open);
-        setExpand(false)
-    };
-
-
-    const handleClick = (actionType:any, detail:any) => {
-        const currentState = getOutComeBtnState(detail, actionType);
-        updateButtonState(actionType, currentState, detail); // Pass only the uuid
+        setExpand(false);
     };
 
     const renderCellContent = (content: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | Promise<React.AwaitedReactNode> | null | undefined, isBold: boolean) => (
@@ -128,7 +120,7 @@ const Row = (props: any) => {
 
     return (
         <>
-            <StyledTableRow ref={appointment?.uuid === id ? firstElementRef : null} onClick={() => setRow(appointment?.uuid, appointment?.selected_gap_count)} sx={{
+            <StyledTableRow ref={appointment?.uuid === id ? firstElementRef : null} onClick={(event) => setRow(event, appointment?.uuid, appointment?.selected_gap_count)} sx={{
                 border: 'none',
                 '& > *': {
                     borderBottom: '0', 'td': {
@@ -260,7 +252,7 @@ const Row = (props: any) => {
                                                     <TableBody>
                                                         {appointmentDetailMulti && appointmentDetailMulti.filter((item: any) => item?.sentUuid?.appointment_id === appointment?.uuid).map((detail: any) => (
                                                             <TableRowInside key={detail.uuid}>
-                                                                <TableMidData><SpanText>{detail.screening}</SpanText></TableMidData>
+                                                                <TableMidData sx={{ width: "8.5%" }}><SpanText>{detail.screening}</SpanText></TableMidData>
                                                                 <TableMidData sx={{ width: "20%" }}><ActionBtn>{detail.action}</ActionBtn></TableMidData>
                                                                 <TableMidData ><Text><Tooltip title={detail.description} placement="top">{detail.description}</Tooltip></Text></TableMidData>
 
@@ -295,7 +287,7 @@ const Row = (props: any) => {
                                                                         >
                                                                             <StyledMuiButton
                                                                                 buttonstate={getOutComeBtnState(detail, 'accept')}
-                                                                                onClick={() => handleClick('accept', detail)}
+                                                                                onClick={() => updateOutCome('accept', getOutComeBtnState(detail, 'accept'), detail , true)}
                                                                             >
 
                                                                                 {(getOutComeBtnState(detail, 'accept') === "enable" || getOutComeBtnState(detail, 'reject') === "active") ? "Accept" : "Accepted"}
@@ -309,7 +301,7 @@ const Row = (props: any) => {
                                                                         >
                                                                             <StyledMuiButton
                                                                                 buttonstate={getOutComeBtnState(detail, 'reject')}
-                                                                                onClick={() => handleClick('reject', detail)}
+                                                                                onClick={() => updateOutCome('reject', getOutComeBtnState(detail, 'reject'), detail, true)}
 
                                                                             >
                                                                                 {(getOutComeBtnState(detail, 'reject') === "enable" || getOutComeBtnState(detail, 'accept') === "active") ? "Reject" : "Rejected"}
@@ -325,7 +317,7 @@ const Row = (props: any) => {
                                                     <TableBody>
                                                         {appointmentDetail && appointmentDetail.map((detail: any) => (
                                                             <TableRowInside key={detail.uuid}>
-                                                                <TableMidData sx={{ width: "10%" }}><SpanText>{detail.screening}</SpanText></TableMidData>
+                                                                <TableMidData sx={{ width: "8.5%" }}><SpanText>{detail.screening}</SpanText></TableMidData>
                                                                 <TableMidData sx={{ width: "20%" }}><ActionBtn>{detail.action}</ActionBtn></TableMidData>
                                                                 <TableMidData ><Text><Tooltip title={detail.description} placement="top">{detail.description}</Tooltip></Text></TableMidData>
                                                                 <TableMidData sx={{ width: '180px' }}>
@@ -359,7 +351,7 @@ const Row = (props: any) => {
                                                                         >
                                                                             <StyledMuiButton
                                                                                 buttonstate={getOutComeBtnState(detail, 'accept')}
-                                                                                onClick={() => updateButtonState('accept', getOutComeBtnState(detail, 'accept'), detail)}
+                                                                                onClick={() => updateOutCome('accept', getOutComeBtnState(detail, 'accept'), detail , false)}
                                                                             >
 
                                                                                 {(getOutComeBtnState(detail, 'accept') === "enable" || getOutComeBtnState(detail, 'reject') === "active") ? "Accept" : "Accepted"}
@@ -373,7 +365,7 @@ const Row = (props: any) => {
                                                                         >
                                                                             <StyledMuiButton
                                                                                 buttonstate={getOutComeBtnState(detail, 'reject')}
-                                                                                onClick={() => updateButtonState('reject', getOutComeBtnState(detail, 'reject'), detail)}
+                                                                                onClick={() => updateOutCome('reject', getOutComeBtnState(detail, 'reject'), detail, false)}
                                                                             >
                                                                                 {(getOutComeBtnState(detail, 'reject') === "enable" || getOutComeBtnState(detail, 'accept') === "active") ? "Reject" : "Rejected"}
                                                                             </StyledMuiButton>

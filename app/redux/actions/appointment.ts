@@ -26,7 +26,8 @@ export interface ICreateFilterPayload {
   filter_name?: string,
   visit_type: string[],
   screening: string[],
-  provider: string[]
+  provider: string[],
+  show_cancelled_appointment: boolean
 }
 
 export interface IUpdateAppointmentFilter {

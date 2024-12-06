@@ -39,7 +39,7 @@ import DeleteFilterModal from '../deleteFilterModal';
 import { formatDates, DateFormatter } from '@/app/utils/helper';
 
 function FilterButton(props: any) {
-  const { getAppointmentFiltersData, selectedStatus, setEmptySearch, setSelectedStatus, date, handleAddEventData, isFilterApplied, appointmentFiltersData, setMainLoader, isFilterDataLoading, loadMoreAppointment, filters, selectedFilterList, setSelectedVisitType, setSelectedScreening, setSelectedProviders, setAnchorEl, anchorEl, selectedVisitType, selectedScreening, selectedProviders, resetFilters, getFilterDetail, selectedSavedFilterUuid, setIsFilterApplied } = props;
+  const { getAppointmentFiltersData, cancelledStatus, setCancelledStatus, selectedStatus, setEmptySearch, setSelectedStatus, date, handleAddEventData, isFilterApplied, appointmentFiltersData, setMainLoader, isFilterDataLoading, loadMoreAppointment, filters, selectedFilterList, setSelectedVisitType, setSelectedScreening, setSelectedProviders, setAnchorEl, anchorEl, selectedVisitType, selectedScreening, selectedProviders, resetFilters, getFilterDetail, selectedSavedFilterUuid, setIsFilterApplied } = props;
   const { patient_screening, provider, visit_type } = appointmentFiltersData || {};
 
   const label = { inputProps: { "aria-label": "Checkbox demo" } };
@@ -55,18 +55,10 @@ function FilterButton(props: any) {
   const selectedFilterDetail = useSelector((state: AppState) => state.appointment.selectedFilterDetail);
   const [filterName, setFilterName] = React.useState(isEditModalOpen ? selectedFilterDetail?.name : " ");
 
-
-
   const statusKeys = [
     { name: "Cancelled" },
     { name: "Not Cancelled" }
   ];
-
-  const handleStatusSelection = (pro: { name: string }) => {
-    setSelectedStatus(pro.name);
-  };
-
-
 
   const modalToggle = () => {
     setIsModalOpen(!isModalOpen);
@@ -94,7 +86,7 @@ function FilterButton(props: any) {
   };
 
   const isEmptyFilter = () => {
-    if (selectedVisitType.length === 0 && selectedScreening.length === 0 && selectedProviders.length === 0 && selectedStatus === null) {
+    if (selectedVisitType.length === 0 && selectedScreening.length === 0 && selectedProviders.length === 0 && cancelledStatus === null) {
       return true;
     } return false;
   }
@@ -120,6 +112,11 @@ function FilterButton(props: any) {
       setSelectedScreening(updatedFilters);
     }
   }
+
+
+  const handleStatusSelection = (pro: { name: string }) => {
+    setCancelledStatus(pro.name);
+  };
 
   const handleProvidersFilterClick = (filter: any) => {
     const index = selectedProviders.indexOf(filter.uuid);
@@ -163,12 +160,10 @@ function FilterButton(props: any) {
     if (isEdit) setIsEditModalOpen(true);
   }
 
-
-
-
   const createFilter = (isEdit: boolean = false) => {
 
     const formattedDates = DateFormatter(date, date);
+    let status = selectedStatus === "Cancelled" ? true : false;
 
     const payload = {
       filter_name: filterName,
@@ -177,6 +172,7 @@ function FilterButton(props: any) {
       provider: selectedProviders,
       appointment_start_date: formattedDates.start,
       appointment_end_date: formattedDates.end,
+      show_cancelled_appointment:status
     };
 
     if (isEdit) {
@@ -224,8 +220,8 @@ function FilterButton(props: any) {
       provider: selectedProviders,
       appointment_start_date: formattedDates.start,
       appointment_end_date: formattedDates.end,
+      show_cancelled_appointment:status
     };
-
 
     dispatch(updateAppointmentFilter({ action: payload, uuid: selectedFilterDetail?.uuid })).then((e) => {
       if (e?.payload) {
@@ -433,10 +429,13 @@ function FilterButton(props: any) {
 
                           {visit_type?.map((visit: any, index: number) => (
                             <TableCellTd key={index}>
-                              <label>
+                              <label style={{display: "flex", alignItems:"flex-start"}}>
                                 <CheckboxInner
                                   key={index}
-                                  sx={{ "& .MuiSvgIcon-root": { fontSize: 16 } }}
+                                  sx={{
+                                    marginTop:"4px",
+                                     "& .MuiSvgIcon-root": { fontSize: 16 }
+                                    }}
                                   {...label}
                                   onClick={() => handleVisitTypeFilterClick(visit)}
                                   checked={selectedVisitType?.includes(visit) || false}
@@ -453,10 +452,12 @@ function FilterButton(props: any) {
                           </TableCellHd>
                           {patient_screening?.map((patient: any, index: number) => (
                             <TableCellTd key={index}>
-                              <label>
+                              <label style={{display: "flex", alignItems:"flex-start"}}>
                                 <CheckboxInner
                                   key={index}
-                                  sx={{ "& .MuiSvgIcon-root": { fontSize: 16 } }}
+                                  sx={{ 
+                                    marginTop:"4px",
+                                    "& .MuiSvgIcon-root": { fontSize: 16 } }}
                                   {...label}
                                   onClick={() => handleScreeningFilterClick(patient)}
                                   checked={selectedScreening?.includes(patient) || false}
@@ -473,10 +474,12 @@ function FilterButton(props: any) {
                           </TableCellHd>
                           {provider?.map((pro: any, index: number) => (
                             <TableCellTd key={index}>
-                              <label>
+                              <label style={{display: "flex", alignItems:"flex-start"}}>
                                 <CheckboxInner
                                   key={index}
-                                  sx={{ "& .MuiSvgIcon-root": { fontSize: 16 } }}
+                                  sx={{ 
+                                    marginTop:"4px",
+                                    "& .MuiSvgIcon-root": { fontSize: 16 } }}
                                   {...label}
                                   onClick={() => handleProvidersFilterClick(pro)}
                                   checked={selectedProviders?.includes(pro.uuid) || false}
@@ -500,8 +503,7 @@ function FilterButton(props: any) {
                                   sx={{ "& .MuiSvgIcon-root": { fontSize: 16, } }}
                                   onClick={() => handleStatusSelection(pro)}
                                   checked={
-                                    selectedStatus === pro.name ||
-                                    (selectedStatus == null && pro.name === "Not Cancelled")
+                                     cancelledStatus ? pro.name === "Cancelled" : pro.name === "Not Cancelled"
                                   }
                                 />
                                 {pro.name}
