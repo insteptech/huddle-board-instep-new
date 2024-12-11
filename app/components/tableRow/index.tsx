@@ -71,12 +71,10 @@ function GetScreening({ screening }: { screening: string[] }) {
 
 
 const Row = (props: any) => {
-    const { appointment, updateOutCome , appointmentDetailMulti, selectedAppointmentUuid, firstElementRef, id, expand, selectedAppointmentGap, setExpand, setSelectedAppointmentGap, loaderAppoint, setSelectedAppointmentUuid, updateButtonState, setReverseModal, setLoaderAppoint, appointmentDetails, appointmentDetail } = props;
-    const [open, setOpen] = useState(false);
+    const { appointment, setFilteredItem, filteredItem, appointmentsList, updateOutCome, appointmentDetailMulti, selectedAppointmentUuid, firstElementRef, id, expand, selectedAppointmentGap, setExpand, setSelectedAppointmentGap, loaderAppoint, setSelectedAppointmentUuid, updateButtonState, setReverseModal, setLoaderAppoint, appointmentDetails, appointmentDetail } = props;
+    const [open, setOpen] = useState(expand === true ? true : false);
     const [isCopied, setIsCopied] = useState(false);
-    const dispatch = useDispatch<AppDispatch>();
-    const [copyMrnRow, setCopyMrnRow] = useState(false);
-
+    const [newArray, setNewArray] = useState(appointmentsList);
 
     const copyMrn = (mrn: any, event: any) => {
         event.stopPropagation();
@@ -86,20 +84,36 @@ const Row = (props: any) => {
 
     }
 
+    useEffect(() => {
+        if (expand === true) {
+            setOpen(false);
+        }
+    }, [expand])
+
     const setRow = (event: any, id: any, gap?: number) => {
-        event.stopPropagation();
-    
+        setFilteredItem((prev: any) => [
+            ...prev,
+            ...appointmentsList.filter((item: any) => item?.uuid === id),
+        ]); event.stopPropagation();
+
         if (id === null && gap === 0) {
             return;
         }
-    
+        setOpen(!open);
         setLoaderAppoint(true);
         setSelectedAppointmentUuid(id);
         appointmentDetails(id);
         setSelectedAppointmentGap(gap);
-        setOpen(!open);
-        setExpand(false);
+
     };
+
+
+    const isFiltered = () => {
+         if(filteredItem?.uuid === selectedAppointmentUuid){
+            return false
+         }
+         return true;
+    }
 
     const renderCellContent = (content: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | Promise<React.AwaitedReactNode> | null | undefined, isBold: boolean) => (
         isBold ? <FontBold>{content}</FontBold> : <StyledText>{content}</StyledText>
@@ -117,6 +131,7 @@ const Row = (props: any) => {
             whiteSpace: 'normal', // Allow text to wrap within the tooltip
         },
     }));
+
 
     return (
         <>
@@ -137,24 +152,25 @@ const Row = (props: any) => {
                         <StyledCopy>
                             MRN: {appointment?.mrn}
                             <Tooltip title={isCopied ? "Copied" : "Copy"} placement="top">
-                               <Button onClick={(event) => copyMrn(appointment?.mrn, event)} sx={{padding:0 , margin: 0 , 
-                               display: "inline-block",
-                               width:"10px !important",
-                               ':hover , :focus':{
-                                backgroundColor:'transparent',
-                               }
+                                <Button onClick={(event) => copyMrn(appointment?.mrn, event)} sx={{
+                                    padding: 0, margin: 0,
+                                    display: "inline-block",
+                                    width: "10px !important",
+                                    ':hover , :focus': {
+                                        backgroundColor: 'transparent',
+                                    }
 
 
-                               }}> <ContentCopyIcon
-                                    onClick={(event) => copyMrn(appointment?.mrn, event)}
-                                    sx={{ verticalAlign: 'middle', color: '#17236D', fontSize: '15px', marginLeft: '5px' }}
-                                />
+                                }}> <ContentCopyIcon
+                                        onClick={(event) => copyMrn(appointment?.mrn, event)}
+                                        sx={{ verticalAlign: 'middle', color: '#17236D', fontSize: '15px', marginLeft: '5px' }}
+                                    />
                                 </Button>
                             </Tooltip>
                         </StyledCopy>
                     </StyledName>
                 </TdTableCell>
-                
+
                 <TdTableCell>{renderCellContent(appointment?.visit_type, appointment?.selected_gap_count === 0)}</TdTableCell>
                 <TdTableCell>{renderCellContent(appointment?.provider, appointment?.selected_gap_count === 0)}</TdTableCell>
                 <TdTableCell><GetScreening screening={appointment?.screening.length > 0 ? appointment?.screening : ["No Screening Data Available"]} /></TdTableCell>
@@ -194,7 +210,7 @@ const Row = (props: any) => {
                                 </Stack>
                                 <ProviderCell>{`${selectedAppointmentGap || appointment?.selected_gap_count}/${appointment?.gap_count}`}</ProviderCell>
                                 <IconButton aria-label="expand appointment" size="small">
-                                    {(open && selectedAppointmentUuid === appointment?.uuid || expand) ? <><Tooltip title="Collapse" placement="top"><KeyboardArrowUpIcon sx={{
+                                    {(open && expand || selectedAppointmentUuid === appointment?.uuid) ? <><Tooltip title="Collapse" placement="top"><KeyboardArrowUpIcon sx={{
                                         color: 'black',
                                         border: '1px solid black',
                                         height: '16px',
@@ -217,13 +233,16 @@ const Row = (props: any) => {
 
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0, padding: '0' }} colSpan={6}>
-                    <Collapse in={(open && selectedAppointmentUuid === appointment?.uuid || expand)} timeout="auto" unmountOnExit>
+                    <Collapse
+                        in={(expand ? isFiltered() : (open && selectedAppointmentUuid === appointment?.uuid))}
+
+                        timeout="auto" unmountOnExit>
                         <Box>
                             {
-                                appointment?.gap_count === 0 ? 
-                                <Table>
+                                appointment?.gap_count === 0 ?
+                                    <Table>
 
-                                </Table>
+                                    </Table>
                                     :
                                     <Table size="small" aria-label="purchases">
                                         <TableHead>
@@ -287,7 +306,7 @@ const Row = (props: any) => {
                                                                         >
                                                                             <StyledMuiButton
                                                                                 buttonstate={getOutComeBtnState(detail, 'accept')}
-                                                                                onClick={() => updateOutCome('accept', getOutComeBtnState(detail, 'accept'), detail , true)}
+                                                                                onClick={() => updateOutCome('accept', getOutComeBtnState(detail, 'accept'), detail, true)}
                                                                             >
 
                                                                                 {(getOutComeBtnState(detail, 'accept') === "enable" || getOutComeBtnState(detail, 'reject') === "active") ? "Accept" : "Accepted"}
@@ -351,7 +370,7 @@ const Row = (props: any) => {
                                                                         >
                                                                             <StyledMuiButton
                                                                                 buttonstate={getOutComeBtnState(detail, 'accept')}
-                                                                                onClick={() => updateOutCome('accept', getOutComeBtnState(detail, 'accept'), detail , false)}
+                                                                                onClick={() => updateOutCome('accept', getOutComeBtnState(detail, 'accept'), detail, false)}
                                                                             >
 
                                                                                 {(getOutComeBtnState(detail, 'accept') === "enable" || getOutComeBtnState(detail, 'reject') === "active") ? "Accept" : "Accepted"}

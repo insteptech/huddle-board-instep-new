@@ -302,7 +302,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
       .then((response: any) => {
 
         setIsPatientNotFound(false);
-        dispatch(updateFilter({ page: Number(page) + 1 }));        
+        dispatch(updateFilter({ page: Number(page) + 1 }));
         if (response?.payload?.results.length === 0) {
           setIsClearFilter(true);
 
@@ -357,7 +357,7 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
   };
 
 
-  const updateOutCome = (value: any, data: any, detail: any , multi:boolean) => {
+  const updateOutCome = (value: any, data: any, detail: any, multi: boolean) => {
 
     setLoaderAppoint1(true);
     const { appointment_id, uuid } = detail;
@@ -415,14 +415,14 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
           }
         }
       );
-      
+
       setLoaderAppoint(true);
       handleAddEventData("FRONTEND_TILE_CLICK_ACTION", `FRONTEND_TILE_CLICK_ACTION${value}`, `FRONTEND_TILE_CLICK_ACTION${value}`)
-       
 
-      
 
-      if(multi === true){
+
+
+      if (multi === true) {
         dispatch(getAppointmentDetailMulti({ appointment_id: res?.meta?.arg?.appointment_id })).then((res) => {
           setLoaderAppoint1(false);
           setLoaderAppoint(false);
@@ -431,11 +431,11 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
         })
       }
 
-      else{
+      else {
         appointmentDetails(appointment_id);
         setLoaderAppoint1(false);
       }
-     
+
       const formattedDates = formatDates(filters.appointment_start_date, filters.appointment_end_date);
       const payload = {
         ...filters,
@@ -810,6 +810,10 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
 
   // expand functionality
 
+  const [expandDisabled, setExpandDisabled] = useState(false);
+  const [noneDisabled, setNoneDisabled] = useState(true);
+
+
   let dispatchedUUIDs: any = [];
 
   const firstElementRef = useRef<any>(null);
@@ -819,6 +823,10 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
     setExpand(value);
 
     if (value === true) {
+
+      setNoneDisabled(false);
+      setExpandDisabled(true);
+
       for (let i = 0; i < appointmentsList.length; i++) {
         const appointmentUUID = appointmentsList[i]?.uuid;
 
@@ -828,44 +836,40 @@ const CollapsibleTable: React.FC<AppointmentListProps> = ({ initialAppointments 
           });
           dispatchedUUIDs.push(appointmentUUID);
         } else {
+
+
         }
       }
 
     }
 
-    else{
-      // setLoaderAppoint(true);
+    else {
+      setSelectedAppointmentUuid('')
+      setNoneDisabled(true);
+      setExpandDisabled(false);
     }
     setValueNum(valueNum + 1);
   }
 
-const [hasRunOnceCount , setHasRunOnceCount] = useState(0);
+  const [hasRunOnceCount, setHasRunOnceCount] = useState(0);
 
   useEffect(() => {
 
-    if(hasRunOnceCount> 2){
+    if (hasRunOnceCount > 1) {
       return;
     }
 
     if (appointmentsList.length === allappointments?.count) {
       setHasRunOnceCount(hasRunOnceCount + 1)
     }
-    if (inView ) {
+    if (inView) {
       expandedValues(expand);
     }
   }, [inView])
 
 
-  useEffect(() => {
-
-    if (appointmentsList.length === 0) {
-      // window.location.reload();
-    }
-  }, [appointmentsList])
-
-
   const [emptySearch, setEmptySearch] = useState(false);
-
+  const [filteredItem, setFilteredItem]= useState([])
   const columns = ["Appt Time", "Patient Name", "Type of Visit", "Clinician", "Screening", "Action"];
 
   const [windowSize, setWindowSize] = useState({
@@ -1051,9 +1055,9 @@ const [hasRunOnceCount , setHasRunOnceCount] = useState(0);
 
             <ExpendSection>
               <Typography component={'p'}>Expand:</Typography>
-              <Button onClick={() => expandedValues(true)}>All</Button>
+              <Button disabled={expandDisabled} onClick={() => expandedValues(true)}>All</Button>
               <Typography component={'span'} sx={{ color: '#172B4D' }}>|</Typography>
-              <Button onClick={() => expandedValues(false)}>None</Button>
+              <Button disabled={noneDisabled} onClick={() => expandedValues(false)}>None</Button>
             </ExpendSection>
           </TableTopMain>
 
@@ -1206,7 +1210,8 @@ const [hasRunOnceCount , setHasRunOnceCount] = useState(0);
                             reverseModal={reverseModal}
                             setConfirmationModal={setConfirmationModal}
                             setReverseModal={setReverseModal}
-                            // actionValue={actionValue}
+                            filteredItem={filteredItem}
+                            setFilteredItem={setFilteredItem}
                             setSelectedAppointmentGap={setSelectedAppointmentGap}
                             selectedAppointmentGap={selectedAppointmentGap}
                           />
