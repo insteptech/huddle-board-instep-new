@@ -109,10 +109,10 @@ const Row = (props: any) => {
 
 
     const isFiltered = () => {
-         if(filteredItem?.uuid === selectedAppointmentUuid){
+        if (filteredItem?.uuid === selectedAppointmentUuid) {
             return false
-         }
-         return true;
+        }
+        return true;
     }
 
     const renderCellContent = (content: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | Promise<React.AwaitedReactNode> | null | undefined, isBold: boolean) => (
@@ -210,7 +210,9 @@ const Row = (props: any) => {
                                 </Stack>
                                 <ProviderCell>{`${selectedAppointmentGap || appointment?.selected_gap_count}/${appointment?.gap_count}`}</ProviderCell>
                                 <IconButton aria-label="expand appointment" size="small">
-                                    {(open && expand || selectedAppointmentUuid === appointment?.uuid) ? <><Tooltip title="Collapse" placement="top"><KeyboardArrowUpIcon sx={{
+                                    {
+                                        expand?!open: open && selectedAppointmentUuid === appointment?.uuid
+                                    ? <><Tooltip title="Collapse" placement="top"><KeyboardArrowUpIcon sx={{
                                         color: 'black',
                                         border: '1px solid black',
                                         height: '16px',
@@ -234,7 +236,9 @@ const Row = (props: any) => {
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0, padding: '0' }} colSpan={6}>
                     <Collapse
-                        in={(expand ? isFiltered() : (open && selectedAppointmentUuid === appointment?.uuid))}
+                        in={
+                            expand ? !open : open && selectedAppointmentUuid === appointment?.uuid
+                        }
 
                         timeout="auto" unmountOnExit>
                         <Box>
